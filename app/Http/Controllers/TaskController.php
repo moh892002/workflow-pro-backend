@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class TaskController extends Controller
 {
     public function index(){
-        $tasks = Task::with(['project', 'user'])->get();
+        $tasks = Task::with(['user'])->get();
         return response()->json([
             'success' => true,
             'data' => $tasks,
@@ -21,20 +21,20 @@ class TaskController extends Controller
             'description' => 'required|string',
             'priority' => 'required|in:LOW,MEDIUM,HIGH,URGENT',
             'status' => 'required|in:completed,pending,in_progress',
-            'deadline_date' => 'required|date_format:Y-m-d H:i:s',
+            'deadline_date' => 'required|date_format:Y-m-d',
             'assigned_to' => 'nullable|exists:users,id',
-            'project_id' => 'nullable|exists:projects,id',
+            // 'project_id' => 'nullable|exists:projects,id',
         ]);
 
         $task = Task::create($validated);
         return response()->json([
             'success' => true,
-            'data' => $task->load(['project', 'user']),
+            'data' => $task,
         ], 201);
     }
 
     public function show($id){
-        $task = Task::with(['project', 'user'])->find($id);
+        $task = Task::with(['user'])->find($id);
         if(!$task){
             return response()->json([
                 'success' => false,
@@ -61,15 +61,15 @@ class TaskController extends Controller
             'description' => 'required|string',
             'priority' => 'required|in:LOW,MEDIUM,HIGH,URGENT',
             'status' => 'required|in:completed,pending,in_progress',
-            'deadline_date' => 'required|date_format:Y-m-d H:i:s',
+            'deadline_date' => 'required|date_format:Y-m-d',
             'assigned_to' => 'nullable|exists:users,id',
-            'project_id' => 'nullable|exists:projects,id',
+            // 'project_id' => 'nullable|exists:projects,id',
         ]);
 
         $task->update($validated);
         return response()->json([
             'success' => true,
-            'data' => $task->load(['project', 'user']),
+            'data' => $task,
         ], 200);
     }
 

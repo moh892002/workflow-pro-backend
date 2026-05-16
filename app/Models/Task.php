@@ -12,6 +12,7 @@ class Task extends Model
         'description',
         'priority',
         'deadline_date',
+        'status',
         'assigned_to',
         'project_id',
     ];

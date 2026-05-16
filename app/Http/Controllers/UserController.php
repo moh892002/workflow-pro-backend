@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     public function index(){
-        $users = User::with('department')->get();
+        $users = User::with('department')->imageUrl();
         // dd($users);
         return response()->json([
             'success' => true,
@@ -23,7 +23,7 @@ class UserController extends Controller
             'password' => 'required|string|min:6',
             'role' => 'required|in:ADMIN,HR_MANAGER,EMPLOYEE',
             'department_id' => 'nullable|exists:departments,id',
-            'jop_title' => 'required|string',
+            'job_title' => 'required|string',
             'image' => 'nullable|image|max:2048',
             'username' => 'required|unique:users,username',
             'salary' => 'required|integer',
@@ -32,9 +32,6 @@ class UserController extends Controller
         // dd($validated);
         if($request->hasFile('image')){
             $userDir = public_path('images/users');
-//            if (!file_exists($userDir)) {
-//                mkdir($userDir, 0755, true);
-//            }
             $imageName = time().'.'.$request->image->extension();
             $request->image->move($userDir, $imageName);
             $validated['image'] = 'users/' . $imageName;
@@ -42,6 +39,7 @@ class UserController extends Controller
         // Hash::make
 
         $user = User::create($validated);
+
         return response()->json([
             'success' => true,
             'data' => $user,
@@ -49,7 +47,7 @@ class UserController extends Controller
     }
 
     public function show($id){
-        $user = User::with('department')->find($id);
+        $user = User::with('department')->findOrFail($id)->imageUrl();
         if(!$user){
             return response()->json([
                 'success' => false,
@@ -63,7 +61,7 @@ class UserController extends Controller
     }
 
     public function update(Request $request, $id){
-        $user = User::find($id);
+        $user = User::findOrFail($id);
         if(!$user){
             return response()->json([
                 'success' => false,
@@ -75,14 +73,17 @@ class UserController extends Controller
             'fullname' => 'sometimes|required|string',
             'email' => 'sometimes|required|email|unique:users,email,' . $id,
             'password' => 'sometimes|required|string|min:6',
-            'role' => 'sometimes|required|in:ADMIN,HR_MANAGER,EMPLOYEE,OPS_MANAGER,SALES_DIRECTOR',
+            'role' => 'sometimes|required|in:ADMIN,HR_MANAGER,EMPLOYEE',
             'department_id' => 'nullable|exists:departments,id',
-            'jop_title' => 'sometimes|required|string',
+            'job_title' => 'sometimes|required|string',
             'image' => 'nullable|image|max:2048',
             'username' => 'sometimes|required|unique:users,username,' . $id,
             'salary' => 'sometimes|required|integer',
         ]);
 
+        $imageUrl = $user->image;
+
+        
         if($request->hasFile('image')){
             $userDir = public_path('images/users');
 //            if (!file_exists($userDir)) {
@@ -91,6 +92,12 @@ class UserController extends Controller
             $imageName = time().'.'.$request->image->extension();
             $request->image->move($userDir, $imageName);
             $validated['image'] = 'users/' . $imageName;
+
+            $oldImagePath = $user->image ?? null;
+            if($oldImagePath && file_exists(public_path('images/' . $oldImagePath))){
+                unlink(public_path('images/' . $oldImagePath));
+            }
+
         }
 
         $user->update($validated);
@@ -109,10 +116,8 @@ class UserController extends Controller
             ], 404);
         }
 
-
         $user->delete();
 
-        // Delete the user's image if it exists
         if($user->image && file_exists(public_path('images/' . $user->image))){
             unlink(public_path('images/' . $user->image));
         }

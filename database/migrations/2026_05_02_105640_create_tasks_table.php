@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('title');
             $table->string('description');
             $table->string('priority');
-            $table->enum('status', ['completed', 'pending', 'in_progress'])->default('pending');
+            $table->string('status')->default('pending');
             $table->dateTime('deadline_date');
-            $table->foreignId('assigned_to')->constrained('users')->nullOnDelete();
+            $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
 //            $table->foreignId('project_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });

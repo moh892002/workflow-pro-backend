@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('salary_records', function (Blueprint $table) {
-            $table->id('transaction_id'); // Mapping PK from diagram
+            $table->id(); 
             $table->foreignId('user_id')->constrained('users');
-            $table->string('effective_type');
-            $table->string('status');
-            $table->string('currency');
-            $table->string('payment_frequency');
-            $table->foreignId('processed_by')->constrained('users');
+            $table->string('transaction_type');
+            $table->decimal('amount', 10, 2);
+            $table->date('transaction_date');
+            $table->string('notes')->nullable();
+            // $table->foreignId('processed_by')->constrained('users');
             $table->timestamps();
         });
     }

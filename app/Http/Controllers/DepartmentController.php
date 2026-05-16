@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class DepartmentController extends Controller
 {
     public function index(){
-        $departments = Department::get('name');
+        $departments = Department::get();
 //        dd($departments);
         return response()->json([
             'success' => true,

@@ -62,7 +62,7 @@ class UserController extends Controller
         }
         return response()->json([
             'success' => true,
-            'data' => $user,
+            'data' => new UserResource($user),
         ], 200);
     }
 

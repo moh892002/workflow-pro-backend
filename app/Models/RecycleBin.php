@@ -11,6 +11,15 @@ class RecycleBin extends Model
         'deleted_data' => 'array',
     ];
 
+    protected $fillable = [
+        'deleted_table_name',
+        'deleted_model',
+        'deleted_item_id',
+        'deleted_data',
+        'deleted_at',
+        'deleted_by',
+    ];
+
     public function user() {
         return $this->belongsTo(User::class, 'deleted_by');
     }

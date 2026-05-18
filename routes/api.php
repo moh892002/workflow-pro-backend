@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\RecycleBinController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\RecordController;
@@ -27,3 +28,15 @@ Route::apiResource('tasks', TaskController::class);
 Route::apiResource('departments', DepartmentController::class);
 
 Route::apiResource('records', RecordController::class);
+
+Route::post('/login', [AuthController::class, 'login']);
+
+// Recycle Bin API Routes
+Route::middleware('auth:sanctum')->prefix('recycle-bin')->group(function () {
+    Route::get('/', [RecycleBinController::class, 'index']);
+    Route::get('/{model}', [RecycleBinController::class, 'showByModel']);
+    Route::post('/{model}/{id}/restore', [RecycleBinController::class, 'restore']);
+    Route::delete('/{model}/{id}/force', [RecycleBinController::class, 'forceDelete']);
+    Route::post('/bulk-restore', [RecycleBinController::class, 'bulkRestore']);
+    Route::delete('/bulk-force-delete', [RecycleBinController::class, 'bulkForceDelete']);
+});

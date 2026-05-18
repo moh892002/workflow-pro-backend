@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
 use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-    public function index(){
-        $departments = Department::get();
-//        dd($departments);
+    public function index(Request $request){
+        $perPage = $request->input('per_page', 15);
+        $page = $request->input('page', 1);
+
+        $departments = Department::paginate($perPage, ['*'], 'page', $page);
+
         return response()->json([
             'success' => true,
-            'data' => $departments,
+            'data' => DepartmentResource::collection($departments),
         ], 200);
     }
 

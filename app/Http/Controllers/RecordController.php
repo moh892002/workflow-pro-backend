@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SalaryRecordResource;
 use App\Models\SalaryRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class RecordController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $records = SalaryRecord::with('user')->get();
+        $perPage = $request->input('per_page', 15);
+        $page = $request->input('page', 1);
+
+        $records = SalaryRecord::with('user')->paginate($perPage, ['*'], 'page', $page);
+
         return response()->json([
             'status' => true,
-            'data' => $records
+            'data' => SalaryRecordResource::collection($records)
         ], 200);
     }
 

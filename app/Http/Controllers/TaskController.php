@@ -2,16 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class TaskController extends Controller
 {
-    public function index(){
-        $tasks = Task::with(['user'])->get();
+    public function index(Request $request){
+        $perPage = $request->input('per_page', 15);
+        $page = $request->input('page', 1);
+
+        $tasks = Task::with(['user'])->paginate($perPage, ['*'], 'page', $page);
+
         return response()->json([
             'success' => true,
-            'data' => $tasks,
+            'data' => TaskResource::collection($tasks),
         ], 200);
     }
 

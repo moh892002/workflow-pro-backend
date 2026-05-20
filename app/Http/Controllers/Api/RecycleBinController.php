@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Cache;
 
 class RecycleBinController extends Controller
 {
@@ -48,10 +49,11 @@ class RecycleBinController extends Controller
             $query->where('deleted_table_name', $request->input('table'));
         }
 
-        // Search in deleted_data (JSONB) - assuming we want to search in the JSON string
+        // Search in deleted_data (JSONB) - using proper JSONB operators for PostgreSQL
         if ($request->has('search') && $request->input('search')) {
             $search = $request->input('search');
-            $query->where('deleted_data', 'like', "%{$search}%");
+            // Using ->> to extract JSON value as text, then LIKE for pattern matching
+            $query->whereRaw("deleted_data::text LIKE ?", ["%{$search}%"]);
         }
 
         // Pagination
@@ -74,6 +76,7 @@ class RecycleBinController extends Controller
     public function showByModel(string $model, Request $request): JsonResponse
     {
         $model = $this->normalizeModel($model);
+
         $query = RecycleBin::where('deleted_model', $model);
 
         // Optional: filter by table if provided
@@ -84,7 +87,8 @@ class RecycleBinController extends Controller
         // Search
         if ($request->has('search') && $request->input('search')) {
             $search = $request->input('search');
-            $query->where('deleted_data', 'like', "%{$search}%");
+            // Using ->> to extract JSON value as text, then LIKE for pattern matching
+            $query->whereRaw("deleted_data::text LIKE ?", ["%{$search}%"]);
         }
 
         $perPage = $request->input('per_page', 15);

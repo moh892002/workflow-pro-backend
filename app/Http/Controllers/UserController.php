@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
 {
-    public function index(){
-        $users = User::with('department')->imageUrl();
-        // dd($users);
+    public function index(Request $request){
+        $perPage = $request->input('per_page', 15);
+        $page = $request->input('page', 1);
+
+        // Get users directly without caching paginator objects
+        $users = User::with('department')->paginate($perPage, ['*'], 'page', $page);
+
         return response()->json([
             'success' => true,
-            'data' => $users,
+            'data' => UserResource::collection($users),
         ] , 200);
     }
 
@@ -47,7 +53,7 @@ class UserController extends Controller
     }
 
     public function show($id){
-        $user = User::with('department')->findOrFail($id)->imageUrl();
+        $user = User::with('department')->findOrFail($id);
         if(!$user){
             return response()->json([
                 'success' => false,
@@ -56,7 +62,7 @@ class UserController extends Controller
         }
         return response()->json([
             'success' => true,
-            'data' => $user,
+            'data' => new UserResource($user),
         ], 200);
     }
 
@@ -81,9 +87,7 @@ class UserController extends Controller
             'salary' => 'sometimes|required|integer',
         ]);
 
-        $imageUrl = $user->image;
 
-        
         if($request->hasFile('image')){
             $userDir = public_path('images/users');
 //            if (!file_exists($userDir)) {

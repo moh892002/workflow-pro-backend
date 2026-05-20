@@ -25,19 +25,9 @@ class User extends Authenticatable
      * @return array<string, string>
      */
 
-    function scopeImageUrl($query){
-        return $query->get()->map(function($user){
-            return $user->imageUrl();
-        });
-    }
-
-    public function imageUrl()
+    public function getImageUrlAttribute()
     {
-        if ($this->image) {
-            $this->image = asset('images/' . $this->image);
-        }
-
-        return $this;
+        return $this->image ? asset('images/' . $this->image) : null;
     }
 
     protected $fillable = [

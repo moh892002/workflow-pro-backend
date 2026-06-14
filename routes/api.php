@@ -20,16 +20,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function () {});
-
-// Route::apiResource('users', UserController::class);
-
-// Route::apiResource('tasks', TaskController::class);
-
-// Route::apiResource('departments', DepartmentController::class);
-Route::apiResource('users', UserController::class);
-
 Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('users', UserController::class);
+
     Route::apiResource('performance-reviews', PerformanceReviewController::class);
 
     Route::apiResource('tasks', TaskController::class);

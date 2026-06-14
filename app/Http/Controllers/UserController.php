@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -31,23 +32,12 @@ class UserController extends Controller
             'role' => 'required|in:ADMIN,HR_MANAGER,EMPLOYEE',
             'department_id' => 'nullable|exists:departments,id',
             'job_title' => 'required|string',
-            'image' => 'file|mimes:jpeg,jpg,png,gif,webp|extensions:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:2048',
+            'image' => 'nullable|string',
             'username' => 'required|unique:users,username',
             'salary' => 'required|integer',
         ]);
 
-        if ($request->hasFile('image')) {
-            $userDir = public_path('images/users');
-            if (! is_dir($userDir)) {
-                mkdir($userDir, 0755, true);
-            }
-
-            $extension = $request->image->guessExtension() ?? $request->image->getClientOriginalExtension();
-            $imageName = time().'_'.uniqid().'.'.strtolower($extension);
-            $request->image->move($userDir, $imageName);
-            $validated['image'] = 'users/'.$imageName;
-        }
-        // Hash::make
+        $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
 
@@ -60,12 +50,6 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::with('department')->findOrFail($id);
-        if (! $user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found',
-            ], 404);
-        }
 
         return response()->json([
             'success' => true,
@@ -76,12 +60,6 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        if (! $user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found',
-            ], 404);
-        }
 
         $validated = $request->validate([
             'fullname' => 'sometimes|required|string',
@@ -90,26 +68,15 @@ class UserController extends Controller
             'role' => 'sometimes|required|in:ADMIN,HR_MANAGER,EMPLOYEE',
             'department_id' => 'nullable|exists:departments,id',
             'job_title' => 'sometimes|required|string',
-            'image' => 'file|mimes:jpeg,jpg,png,gif,webp|extensions:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:2048',
+            'image' => 'nullable|string',
             'username' => 'sometimes|required|unique:users,username,'.$id,
             'salary' => 'sometimes|required|integer',
         ]);
 
-        if ($request->hasFile('image')) {
-            $userDir = public_path('images/users');
-            if (! is_dir($userDir)) {
-                mkdir($userDir, 0755, true);
-            }
-
-            $extension = $request->image->guessExtension() ?? $request->image->getClientOriginalExtension();
-            $imageName = time().'_'.uniqid().'.'.strtolower($extension);
-            $request->image->move($userDir, $imageName);
-            $validated['image'] = 'users/'.$imageName;
-
-            $oldImagePath = $user->image ?? null;
-            if ($oldImagePath && file_exists(public_path('images/'.$oldImagePath))) {
-                unlink(public_path('images/'.$oldImagePath));
-            }
+        if (! empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
         }
 
         $user->update($validated);

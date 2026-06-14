@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\PerformanceReviewController;
 use App\Http\Controllers\Api\RecycleBinController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\RecordController;
@@ -17,9 +18,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function(){
-    });
-    
+Route::middleware('auth:sanctum')->group(function () {});
 
 // Route::apiResource('users', UserController::class);
 
@@ -30,15 +29,24 @@ Route::apiResource('users', UserController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('performance-reviews', PerformanceReviewController::class);
-    
-    
+
     Route::apiResource('tasks', TaskController::class);
-    
+
     Route::apiResource('departments', DepartmentController::class);
-    
+
     Route::apiResource('records', RecordController::class);
-    
+
     Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/attendance', [AttendanceController::class, 'index']);
+    Route::get('/attendance/today', [AttendanceController::class, 'today']);
+    Route::get('/attendance/history', [AttendanceController::class, 'history']);
+    Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn']);
+    Route::put('/attendance/{attendanceRecord}/check-out', [AttendanceController::class, 'checkOut']);
+    Route::post('/attendance/auto-check-in', [AttendanceController::class, 'autoCheckIn']);
+    Route::post('/attendance/auto-check-out', [AttendanceController::class, 'autoCheckOut']);
 });
 
 Route::post('/login', [AuthController::class, 'login']);

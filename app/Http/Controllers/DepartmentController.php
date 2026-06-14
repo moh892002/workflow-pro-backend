@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Cache;
 
 class DepartmentController extends Controller
 {
-    public function index(Request $request){
+    public function index(Request $request)
+    {
         $perPage = $request->input('per_page', 15);
         $page = $request->input('page', 1);
         $cacheKey = "departments:list:page={$page}:per_page={$perPage}";
@@ -26,22 +27,25 @@ class DepartmentController extends Controller
         ], 200);
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'name' => 'required|unique:departments|string',
         ]);
 
         $department = Department::create($validated);
+
         return response()->json([
             'success' => true,
             'data' => $department,
         ], 201);
     }
 
-    public function show($id){
+    public function show($id)
+    {
         $department = Department::find($id);
 
-        if(!$department){
+        if (! $department) {
             return response()->json([
                 'success' => false,
                 'message' => 'Department not found',
@@ -54,9 +58,10 @@ class DepartmentController extends Controller
         ], 200);
     }
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
         $department = Department::find($id);
-        if(!$department){
+        if (! $department) {
             return response()->json([
                 'success' => false,
                 'message' => 'Department not found',
@@ -75,10 +80,11 @@ class DepartmentController extends Controller
         ], 200);
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         $department = Department::find($id);
 
-        if(!$department) {
+        if (! $department) {
             return response()->json([
                 'success' => false,
                 'message' => 'Department not found',
@@ -89,7 +95,7 @@ class DepartmentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Department deleted successfully'
+            'message' => 'Department deleted successfully',
         ], 200);
     }
 }

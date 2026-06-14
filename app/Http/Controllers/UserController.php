@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index(Request $request){
+    public function index(Request $request)
+    {
         $perPage = $request->input('per_page', 15);
         $page = $request->input('page', 1);
 
@@ -18,10 +19,11 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'data' => UserResource::collection($users),
-        ] , 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
+        ], 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'fullname' => 'required|string',
             'email' => 'required|email|unique:users,email',
@@ -36,14 +38,14 @@ class UserController extends Controller
 
         if ($request->hasFile('image')) {
             $userDir = public_path('images/users');
-            if (!is_dir($userDir)) {
+            if (! is_dir($userDir)) {
                 mkdir($userDir, 0755, true);
             }
 
             $extension = $request->image->guessExtension() ?? $request->image->getClientOriginalExtension();
-            $imageName = time() . '_' . uniqid() . '.' . strtolower($extension);
+            $imageName = time().'_'.uniqid().'.'.strtolower($extension);
             $request->image->move($userDir, $imageName);
-            $validated['image'] = 'users/' . $imageName;
+            $validated['image'] = 'users/'.$imageName;
         }
         // Hash::make
 
@@ -55,23 +57,26 @@ class UserController extends Controller
         ], 201)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
-    public function show($id){
+    public function show($id)
+    {
         $user = User::with('department')->findOrFail($id);
-        if(!$user){
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found',
             ], 404);
         }
+
         return response()->json([
             'success' => true,
             'data' => new UserResource($user),
         ], 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $user = User::findOrFail($id);
-        if(!$user){
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found',
@@ -80,43 +85,45 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'fullname' => 'sometimes|required|string',
-            'email' => 'sometimes|required|email|unique:users,email,' . $id,
+            'email' => 'sometimes|required|email|unique:users,email,'.$id,
             'password' => 'sometimes|required|string|min:6',
             'role' => 'sometimes|required|in:ADMIN,HR_MANAGER,EMPLOYEE',
             'department_id' => 'nullable|exists:departments,id',
             'job_title' => 'sometimes|required|string',
             'image' => 'file|mimes:jpeg,jpg,png,gif,webp|extensions:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:2048',
-            'username' => 'sometimes|required|unique:users,username,' . $id,
+            'username' => 'sometimes|required|unique:users,username,'.$id,
             'salary' => 'sometimes|required|integer',
         ]);
 
         if ($request->hasFile('image')) {
             $userDir = public_path('images/users');
-            if (!is_dir($userDir)) {
+            if (! is_dir($userDir)) {
                 mkdir($userDir, 0755, true);
             }
 
             $extension = $request->image->guessExtension() ?? $request->image->getClientOriginalExtension();
-            $imageName = time() . '_' . uniqid() . '.' . strtolower($extension);
+            $imageName = time().'_'.uniqid().'.'.strtolower($extension);
             $request->image->move($userDir, $imageName);
-            $validated['image'] = 'users/' . $imageName;
+            $validated['image'] = 'users/'.$imageName;
 
             $oldImagePath = $user->image ?? null;
-            if ($oldImagePath && file_exists(public_path('images/' . $oldImagePath))) {
-                unlink(public_path('images/' . $oldImagePath));
+            if ($oldImagePath && file_exists(public_path('images/'.$oldImagePath))) {
+                unlink(public_path('images/'.$oldImagePath));
             }
         }
 
         $user->update($validated);
+
         return response()->json([
             'success' => true,
             'data' => $user,
         ], 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         $user = User::find($id);
-        if(!$user){
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found',
@@ -125,13 +132,13 @@ class UserController extends Controller
 
         $user->delete();
 
-        if($user->image && file_exists(public_path('images/' . $user->image))){
-            unlink(public_path('images/' . $user->image));
+        if ($user->image && file_exists(public_path('images/'.$user->image))) {
+            unlink(public_path('images/'.$user->image));
         }
 
         return response()->json([
             'success' => true,
-            'message' => $user->username .' deleted successfully',
+            'message' => $user->username.' deleted successfully',
         ], 200);
     }
 }

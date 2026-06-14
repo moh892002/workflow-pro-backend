@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class TaskController extends Controller
 {
-    public function index(Request $request){
+    public function index(Request $request)
+    {
         $perPage = $request->input('per_page', 15);
         $page = $request->input('page', 1);
 
@@ -21,7 +21,8 @@ class TaskController extends Controller
         ], 200);
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -33,29 +34,33 @@ class TaskController extends Controller
         ]);
 
         $task = Task::create($validated);
+
         return response()->json([
             'success' => true,
             'data' => $task,
         ], 201);
     }
 
-    public function show($id){
+    public function show($id)
+    {
         $task = Task::with('user')->find($id);
-        if(!$task){
+        if (! $task) {
             return response()->json([
                 'success' => false,
                 'message' => 'Task not found',
             ], 404);
         }
+
         return response()->json([
             'success' => true,
             'data' => $task,
         ], 200);
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $task = Task::find($id);
-        if(!$task){
+        if (! $task) {
             return response()->json([
                 'success' => false,
                 'message' => 'Task not found',
@@ -73,21 +78,24 @@ class TaskController extends Controller
         ]);
 
         $task->update($validated);
+
         return response()->json([
             'success' => true,
             'data' => $task,
         ], 200);
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         $task = Task::find($id);
-        if(!$task){
+        if (! $task) {
             return response()->json([
                 'success' => false,
                 'message' => 'Task not found',
             ], 404);
         }
         $task->delete();
+
         return response()->json([
             'success' => true,
             'message' => 'Task deleted successfully',

@@ -20,7 +20,8 @@ class RecycleBin extends Model
         'deleted_by',
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class, 'deleted_by');
     }
 }

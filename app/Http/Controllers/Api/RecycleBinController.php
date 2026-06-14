@@ -3,23 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\RecycleBin;
 use App\Http\Resources\RecycleBinResource;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
+use App\Models\RecycleBin;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class RecycleBinController extends Controller
 {
     /**
      * Normalize model string to full namespace.
-     *
-     * @param string $model
-     * @return string
      */
     protected function normalizeModel(string $model): string
     {
@@ -27,14 +24,11 @@ class RecycleBinController extends Controller
             return $model;
         }
 
-        return 'App\\Models\\' . $model;
+        return 'App\\Models\\'.$model;
     }
 
     /**
      * Display a listing of the deleted records.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
@@ -53,13 +47,13 @@ class RecycleBinController extends Controller
         if ($request->has('search') && $request->input('search')) {
             $search = $request->input('search');
             // Using ->> to extract JSON value as text, then LIKE for pattern matching
-            $query->whereRaw("deleted_data::text LIKE ?", ["%{$search}%"]);
+            $query->whereRaw('deleted_data::text LIKE ?', ["%{$search}%"]);
         }
 
         // Pagination
         $perPage = $request->input('per_page', 15);
         $page = $request->input('page', 1);
-        $cacheKey = 'recycle_bin:index:' . md5(implode(':', [
+        $cacheKey = 'recycle_bin:index:'.md5(implode(':', [
             $request->input('model', ''),
             $request->input('table', ''),
             $request->input('search', ''),
@@ -79,10 +73,6 @@ class RecycleBinController extends Controller
 
     /**
      * Display deleted records for a specific model.
-     *
-     * @param string $model
-     * @param Request $request
-     * @return JsonResponse
      */
     public function showByModel(string $model, Request $request): JsonResponse
     {
@@ -99,7 +89,7 @@ class RecycleBinController extends Controller
         if ($request->has('search') && $request->input('search')) {
             $search = $request->input('search');
             // Using ->> to extract JSON value as text, then LIKE for pattern matching
-            $query->whereRaw("deleted_data::text LIKE ?", ["%{$search}%"]);
+            $query->whereRaw('deleted_data::text LIKE ?', ["%{$search}%"]);
         }
 
         $perPage = $request->input('per_page', 15);
@@ -113,10 +103,6 @@ class RecycleBinController extends Controller
 
     /**
      * Restore a soft deleted record.
-     *
-     * @param string $model
-     * @param int $id
-     * @return JsonResponse
      */
     public function restore(string $model, int $id): JsonResponse
     {
@@ -128,14 +114,14 @@ class RecycleBinController extends Controller
                 ->firstOrFail();
 
             // Check if the model class exists
-            if (!class_exists($model)) {
+            if (! class_exists($model)) {
                 throw new \Exception("Model {$model} does not exist.");
             }
 
             // Find the original model instance (including soft deleted)
             $modelInstance = $model::withTrashed()->find($id);
 
-            if (!$modelInstance) {
+            if (! $modelInstance) {
                 throw new ModelNotFoundException("No instance of {$model} with id {$id} found.");
             }
 
@@ -148,21 +134,18 @@ class RecycleBinController extends Controller
             DB::commit();
 
             return $this->successResponse(
-                "Record restored successfully",
+                'Record restored successfully',
                 new RecycleBinResource($recycleBin)
             );
         } catch (\Exception $e) {
             DB::rollBack();
+
             return $this->errorResponse($e->getMessage(), Response::HTTP_NOT_FOUND);
         }
     }
 
     /**
      * Permanently delete a record from the recycle bin.
-     *
-     * @param string $model
-     * @param int $id
-     * @return JsonResponse
      */
     public function forceDelete(string $model, int $id): JsonResponse
     {
@@ -176,7 +159,7 @@ class RecycleBinController extends Controller
             $recycleBin->forceDelete();
 
             return $this->successResponse(
-                "Record permanently deleted successfully",
+                'Record permanently deleted successfully',
                 new RecycleBinResource($recycleBin)
             );
         } catch (\Exception $e) {
@@ -186,9 +169,6 @@ class RecycleBinController extends Controller
 
     /**
      * Restore multiple soft deleted records.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function bulkRestore(Request $request): JsonResponse
     {
@@ -210,7 +190,7 @@ class RecycleBinController extends Controller
                 $id = $record['id'];
 
                 // Check if the model class exists
-                if (!class_exists($model)) {
+                if (! class_exists($model)) {
                     throw new \Exception("Model {$model} does not exist.");
                 }
 
@@ -221,7 +201,7 @@ class RecycleBinController extends Controller
                 // Find the original model instance (including soft deleted)
                 $modelInstance = $model::withTrashed()->find($id);
 
-                if (!$modelInstance) {
+                if (! $modelInstance) {
                     throw new ModelNotFoundException("No instance of {$model} with id {$id} found.");
                 }
 
@@ -242,15 +222,13 @@ class RecycleBinController extends Controller
             );
         } catch (\Exception $e) {
             DB::rollBack();
+
             return $this->errorResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
     /**
      * Permanently delete multiple records from the recycle bin.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function bulkForceDelete(Request $request): JsonResponse
     {
@@ -292,10 +270,7 @@ class RecycleBinController extends Controller
     /**
      * Return a success response.
      *
-     * @param string $message
-     * @param mixed $data
-     * @param int $statusCode
-     * @return JsonResponse
+     * @param  mixed  $data
      */
     protected function successResponse(string $message, $data = null, int $statusCode = Response::HTTP_OK): JsonResponse
     {
@@ -309,10 +284,7 @@ class RecycleBinController extends Controller
     /**
      * Return an error response.
      *
-     * @param string $message
-     * @param int $statusCode
-     * @param mixed $errors
-     * @return JsonResponse
+     * @param  mixed  $errors
      */
     protected function errorResponse(string $message, int $statusCode = Response::HTTP_BAD_REQUEST, $errors = null): JsonResponse
     {

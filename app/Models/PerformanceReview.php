@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\RecycleBinTrait;
+use Illuminate\Database\Eloquent\Model;
 
 class PerformanceReview extends Model
 {
@@ -16,7 +16,7 @@ class PerformanceReview extends Model
         'review_period',
         'ai_generated_feedback',
         'final_feedback',
-        'status'
+        'status',
     ];
 
     protected $casts = [

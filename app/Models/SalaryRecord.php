@@ -2,21 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\RecycleBinTrait;
+use Illuminate\Database\Eloquent\Model;
 
 class SalaryRecord extends Model
 {
     use RecycleBinTrait;
 
     protected $fillable = [
-            'user_id',
-            'transaction_type',
-            'amount',
-            'transaction_date',
-            'notes',
-        ];
-    public function user() {
+        'user_id',
+        'transaction_type',
+        'amount',
+        'transaction_date',
+        'notes',
+    ];
+
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 

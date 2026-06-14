@@ -3,30 +3,28 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
+use App\Traits\RecycleBinTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Traits\RecycleBinTrait;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens, RecycleBinTrait;
+    use HasApiTokens, HasFactory, Notifiable, RecycleBinTrait;
+
     protected $appends = ['image_url'];
 
     protected $hidden = ['password', 'remember_token'];
-
 
     /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
      */
-
-    public function getImageUrlAttribute(): string|null
+    public function getImageUrlAttribute(): ?string
     {
-        return $this->image ? asset('images/' . $this->image) : null;
+        return $this->image ? asset('images/'.$this->image) : null;
     }
 
     protected $fillable = [
@@ -38,7 +36,7 @@ class User extends Authenticatable
         'job_title',
         'image',
         'username',
-        'salary'
+        'salary',
     ];
 
     protected function casts(): array
@@ -55,21 +53,24 @@ class User extends Authenticatable
     // }
 
     // Projects where the user is a member
-    public function projects() {
+    public function projects()
+    {
         return $this->belongsToMany(Project::class, 'project_members')
-                    ->withPivot('role_in_project');
+            ->withPivot('role_in_project');
     }
 
-    public function tasks() {
+    public function tasks()
+    {
         return $this->hasMany(Task::class, 'assigned_to');
     }
 
-    public function salaryRecords() {
+    public function salaryRecords()
+    {
         return $this->hasMany(SalaryRecord::class);
     }
 
-    public function department(){
+    public function department()
+    {
         return $this->belongsTo(Department::class);
     }
-
 }

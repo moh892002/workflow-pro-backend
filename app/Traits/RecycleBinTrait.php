@@ -2,8 +2,8 @@
 
 namespace App\Traits;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\RecycleBin;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -28,10 +28,10 @@ trait RecycleBinTrait
 
             RecycleBin::create([
                 'deleted_table_name' => $model->getTable(),
-                'deleted_model'      => get_class($model),
-                'deleted_item_id'    => $model->getKey(),
-                'deleted_data'       => $model->toArray(),
-                'deleted_by'         => Auth::id() ?? null,
+                'deleted_model' => get_class($model),
+                'deleted_item_id' => $model->getKey(),
+                'deleted_data' => $model->toArray(),
+                'deleted_by' => Auth::id() ?? null,
             ]);
         });
     }

@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\PerformanceReview;
 use App\Models\User;
-use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class PerformanceReviewSeeder extends Seeder
 {
@@ -16,8 +15,8 @@ class PerformanceReviewSeeder extends Seeder
     {
         // Get some users to create reviews for
         $users = User::all();
-        $adminsAndHr = $users->filter(fn($user) => in_array($user->role, ['ADMIN', 'HR_MANAGER']));
-        $employees = $users->filter(fn($user) => $user->role === 'EMPLOYEE');
+        $adminsAndHr = $users->filter(fn ($user) => in_array($user->role, ['ADMIN', 'HR_MANAGER']));
+        $employees = $users->filter(fn ($user) => $user->role === 'EMPLOYEE');
 
         // If we don't have enough users, we'll use what we have
         if ($employees->isEmpty()) {
@@ -30,7 +29,7 @@ class PerformanceReviewSeeder extends Seeder
             $reviewer = $adminsAndHr->random() ?? $users->random();
 
             // Ensure we don't have the user reviewing themselves unless they are admin/hr
-            if ($reviewer->id === $employee->id && !in_array($reviewer->role, ['ADMIN', 'HR_MANAGER'])) {
+            if ($reviewer->id === $employee->id && ! in_array($reviewer->role, ['ADMIN', 'HR_MANAGER'])) {
                 // Try to get a different reviewer
                 $reviewer = $users->where('id', '!=', $employee->id)->random() ?? $reviewer;
             }
@@ -47,7 +46,7 @@ class PerformanceReviewSeeder extends Seeder
         }
 
         // Create one pending review for demonstration
-        if (!$employees->isEmpty()) {
+        if (! $employees->isEmpty()) {
             $employee = $employees->first();
             $reviewer = $adminsAndHr->random() ?? $users->random();
 

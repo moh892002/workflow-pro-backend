@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\PerformanceReview;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class PerformanceReviewController extends Controller
@@ -18,7 +17,7 @@ class PerformanceReviewController extends Controller
     {
         // Only admins and HR managers can see all reviews
         $user = $request->user();
-        if (!in_array($user->role, ['ADMIN', 'HR_MANAGER'])) {
+        if (! in_array($user->role, ['ADMIN', 'HR_MANAGER'])) {
             // Regular users can only see their own reviews
             return PerformanceReview::where('user_id', $user->id)
                 ->with(['user', 'reviewer'])
@@ -41,7 +40,7 @@ class PerformanceReviewController extends Controller
             'user_id' => [
                 'required',
                 'exists:users,id',
-                Rule::notIn([$user->id]) // You cannot review yourself unless you're admin/hr?
+                Rule::notIn([$user->id]), // You cannot review yourself unless you're admin/hr?
             ],
             'score' => 'required|integer|min:0|max:100',
             'review_period' => 'required|string',
@@ -52,12 +51,12 @@ class PerformanceReviewController extends Controller
 
         // Set the reviewer to the current user if not specified (but we expect it in the request)
         // For security, we set the reviewer to the current user unless the user is admin/hr specifying another reviewer
-        if (!in_array($user->role, ['ADMIN', 'HR_MANAGER']) && !isset($validated['reviewer_id'])) {
+        if (! in_array($user->role, ['ADMIN', 'HR_MANAGER']) && ! isset($validated['reviewer_id'])) {
             $validated['reviewer_id'] = $user->id;
         } elseif (isset($validated['reviewer_id'])) {
             // Validate that the reviewer exists
             $validated['reviewer_id'] = $request->validate([
-                'reviewer_id' => 'required|exists:users,id'
+                'reviewer_id' => 'required|exists:users,id',
             ])['reviewer_id'];
         } else {
             // Default to current user as reviewer
@@ -119,7 +118,7 @@ class PerformanceReviewController extends Controller
         $performanceReview = PerformanceReview::findOrFail($id);
         $user = request()->user();
 
-        // Only admin/hr can delete, or the reviewer if it's their own review? 
+        // Only admin/hr can delete, or the reviewer if it's their own review?
         // Typically, only admin/hr can delete reviews.
         if ($user->role !== 'ADMIN' && $user->role !== 'HR_MANAGER') {
             return response()->json(['message' => 'Unauthorized'], 403);

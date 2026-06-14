@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\RecycleBinTrait;
+use Illuminate\Database\Eloquent\Model;
 
 class Department extends Model
 {
@@ -11,7 +11,8 @@ class Department extends Model
 
     public $fillable = ['name'];
 
-    public function users() {
+    public function users()
+    {
         return $this->hasMany(User::class);
     }
 }

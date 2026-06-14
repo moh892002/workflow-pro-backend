@@ -6,6 +6,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\RecordController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TaskController;
 // use App\Modules\Users\Controllers\UserController;
 use App\Http\Controllers\UserController;
@@ -37,6 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('records', RecordController::class);
 
     Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+Route::middleware('auth:sanctum')->prefix('reports')->group(function () {
+    Route::get('/attendance', [ReportController::class, 'attendance']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {

@@ -28,6 +28,7 @@ Route::apiResource('tasks', TaskController::class);
 Route::apiResource('departments', DepartmentController::class);
 
 Route::apiResource('records', RecordController::class);
+Route::apiResource('performance-reviews', App\Http\Controllers\Api\PerformanceReviewController::class);
 
 Route::post('/login', [AuthController::class, 'login']);
 

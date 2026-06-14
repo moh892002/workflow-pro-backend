@@ -19,7 +19,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'data' => UserResource::collection($users),
-        ] , 200);
+        ] , 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
     public function store(Request $request){
@@ -49,7 +49,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'data' => $user,
-        ], 201);
+        ], 201)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
     public function show($id){
@@ -63,7 +63,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'data' => new UserResource($user),
-        ], 200);
+        ], 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
     public function update(Request $request, $id){
@@ -108,7 +108,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'data' => $user,
-        ], 200);
+        ], 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
     public function destroy($id){

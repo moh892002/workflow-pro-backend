@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Api\PerformanceReviewController;
 use App\Http\Controllers\Api\RecycleBinController;
 use App\Http\Controllers\AttendanceController;
@@ -35,6 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('departments', DepartmentController::class);
 
     Route::apiResource('records', RecordController::class);
+
+    Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+    Route::post('/activity-logs', [ActivityLogController::class, 'store']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });

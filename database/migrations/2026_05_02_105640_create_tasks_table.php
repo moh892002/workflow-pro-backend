@@ -20,6 +20,13 @@ return new class extends Migration
             $table->dateTime('deadline_date');
             $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
 //            $table->foreignId('project_id')->nullable()->constrained()->onDelete('set null');
+            $table->softDeletes();
+            $table->index('status');
+            $table->index('priority');
+            $table->index('deadline_date');
+            $table->index(['status', 'priority']);
+            $table->index(['assigned_to', 'status']);
+            $table->index(['deadline_date', 'status']);
             $table->timestamps();
         });
     }

@@ -17,7 +17,7 @@ class RecordController extends Controller
         $records = SalaryRecord::with('user')->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
-            'status' => true,
+            'success' => true,
             'data' => SalaryRecordResource::collection($records)
         ], 200);
     }
@@ -33,7 +33,7 @@ class RecordController extends Controller
 
         $record = SalaryRecord::create($validated);
         return response()->json([
-            'status' => true,
+            'success' => true,
             'data' => $record
         ], 201);
     }
@@ -42,24 +42,18 @@ class RecordController extends Controller
         $record = SalaryRecord::with('user')->find($id);
         if(!$record){
             return response()->json([
-                'status' => false,
+                'success' => false,
                 'message' => 'Record not found'
             ], 404);
         }
         return response()->json([
-            'status' => true,
+            'success' => true,
             'data' => $record
         ], 200);
     }
 
     public function update(Request $request, $id){
         $record = SalaryRecord::find($id);
-        if(!$record){
-            return response()->json([
-                'status' => false,
-                'message' => 'Record not found'
-            ], 404);
-        }
 
         $validated = $request->validate([
             "user_id" => "required|exists:users,id",
@@ -71,8 +65,15 @@ class RecordController extends Controller
 
         $record->update($validated);
 
+        if(!$record){
+            return response()->json([
+                'success' => false,
+                'message' => 'Record not found'
+            ], 404);
+        }
+
         return response()->json([
-            'status' => true,
+            'success' => true,
             'data' => $record
         ], 200);
     }
@@ -81,13 +82,13 @@ class RecordController extends Controller
             $record = SalaryRecord::find($id);
             if(!$record){
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => 'Record not found'
                 ], 404);
             } 
             $record->delete();
             return response()->json([
-                'status' => true,
+                'success' => true,
                 'message' => 'Record deleted successfully'
             ], 200);
         }

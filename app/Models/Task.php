@@ -7,6 +7,8 @@ use App\Traits\RecycleBinTrait;
 
 class Task extends Model
 {
+    use RecycleBinTrait;
+
     protected $fillable = [
         'title',
         'description',

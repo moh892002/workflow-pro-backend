@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('ai_generated_feedback');
             $table->text('final_feedback');
             $table->string('status');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

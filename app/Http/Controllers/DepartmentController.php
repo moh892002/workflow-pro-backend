@@ -5,18 +5,24 @@ namespace App\Http\Controllers;
 use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class DepartmentController extends Controller
 {
     public function index(Request $request){
         $perPage = $request->input('per_page', 15);
         $page = $request->input('page', 1);
+        $cacheKey = "departments:list:page={$page}:per_page={$perPage}";
 
-        $departments = Department::paginate($perPage, ['*'], 'page', $page);
+        $departments = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($perPage, $page) {
+            return DepartmentResource::collection(
+                Department::paginate($perPage, ['*'], 'page', $page)
+            )->resolve();
+        });
 
         return response()->json([
             'success' => true,
-            'data' => DepartmentResource::collection($departments),
+            'data' => $departments,
         ], 200);
     }
 

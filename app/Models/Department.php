@@ -7,7 +7,7 @@ use App\Traits\RecycleBinTrait;
 
 class Department extends Model
 {
-    //
+    use RecycleBinTrait;
 
     public $fillable = ['name'];
 

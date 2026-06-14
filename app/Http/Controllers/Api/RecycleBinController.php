@@ -58,11 +58,22 @@ class RecycleBinController extends Controller
 
         // Pagination
         $perPage = $request->input('per_page', 15);
-        $recycleBins = $query->latest()->paginate($perPage);
+        $page = $request->input('page', 1);
+        $cacheKey = 'recycle_bin:index:' . md5(implode(':', [
+            $request->input('model', ''),
+            $request->input('table', ''),
+            $request->input('search', ''),
+            $perPage,
+            $page,
+        ]));
+
+        $recycleBins = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($query, $perPage) {
+            return RecycleBinResource::collection($query->latest()->paginate($perPage))->resolve();
+        });
 
         return $this->successResponse(
             'Deleted records retrieved successfully',
-            RecycleBinResource::collection($recycleBins)
+            $recycleBins
         );
     }
 

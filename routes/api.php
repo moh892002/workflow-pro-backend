@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\PerformanceReviewController;
 use App\Http\Controllers\Api\RecycleBinController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentController;
@@ -10,25 +11,35 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 // Route::post('/login', [AuthController::class, 'login']);
 
-// Route::middleware('auth:sanctum')->group(function(){
-//     Route::post('/logout', [AuthController::class, 'logout']);
-// });
+Route::middleware('auth:sanctum')->group(function(){
+    });
+    
 
+// Route::apiResource('users', UserController::class);
 
+// Route::apiResource('tasks', TaskController::class);
+
+// Route::apiResource('departments', DepartmentController::class);
 Route::apiResource('users', UserController::class);
 
-Route::apiResource('tasks', TaskController::class);
-
-Route::apiResource('departments', DepartmentController::class);
-
-Route::apiResource('records', RecordController::class);
-Route::apiResource('performance-reviews', App\Http\Controllers\Api\PerformanceReviewController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('performance-reviews', PerformanceReviewController::class);
+    
+    
+    Route::apiResource('tasks', TaskController::class);
+    
+    Route::apiResource('departments', DepartmentController::class);
+    
+    Route::apiResource('records', RecordController::class);
+    
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 
 Route::post('/login', [AuthController::class, 'login']);
 

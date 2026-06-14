@@ -13,7 +13,7 @@ class TaskController extends Controller
         $perPage = $request->input('per_page', 15);
         $page = $request->input('page', 1);
 
-        $tasks = Task::with(['user'])->paginate($perPage, ['*'], 'page', $page);
+        $tasks = Task::with('user')->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
             'success' => true,
@@ -40,7 +40,7 @@ class TaskController extends Controller
     }
 
     public function show($id){
-        $task = Task::with(['user'])->find($id);
+        $task = Task::with('user')->find($id);
         if(!$task){
             return response()->json([
                 'success' => false,

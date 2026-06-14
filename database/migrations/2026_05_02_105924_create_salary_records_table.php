@@ -19,6 +19,11 @@ return new class extends Migration
             $table->date('transaction_date');
             $table->string('notes')->nullable();
             // $table->foreignId('processed_by')->constrained('users');
+            $table->softDeletes();
+            $table->index('transaction_type');
+            $table->index('transaction_date');
+            $table->index(['user_id', 'transaction_date']);
+            $table->index(['transaction_type', 'transaction_date']);
             $table->timestamps();
         });
     }

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
 {
@@ -30,15 +29,19 @@ class UserController extends Controller
             'role' => 'required|in:ADMIN,HR_MANAGER,EMPLOYEE',
             'department_id' => 'nullable|exists:departments,id',
             'job_title' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'file|mimes:jpeg,jpg,png,gif,webp|extensions:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:2048',
             'username' => 'required|unique:users,username',
             'salary' => 'required|integer',
         ]);
 
-        // dd($validated);
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
             $userDir = public_path('images/users');
-            $imageName = time().'.'.$request->image->extension();
+            if (!is_dir($userDir)) {
+                mkdir($userDir, 0755, true);
+            }
+
+            $extension = $request->image->guessExtension() ?? $request->image->getClientOriginalExtension();
+            $imageName = time() . '_' . uniqid() . '.' . strtolower($extension);
             $request->image->move($userDir, $imageName);
             $validated['image'] = 'users/' . $imageName;
         }
@@ -82,26 +85,26 @@ class UserController extends Controller
             'role' => 'sometimes|required|in:ADMIN,HR_MANAGER,EMPLOYEE',
             'department_id' => 'nullable|exists:departments,id',
             'job_title' => 'sometimes|required|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'file|mimes:jpeg,jpg,png,gif,webp|extensions:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:2048',
             'username' => 'sometimes|required|unique:users,username,' . $id,
             'salary' => 'sometimes|required|integer',
         ]);
 
-
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
             $userDir = public_path('images/users');
-//            if (!file_exists($userDir)) {
-//                mkdir($userDir, 0755, true);
-//            }
-            $imageName = time().'.'.$request->image->extension();
+            if (!is_dir($userDir)) {
+                mkdir($userDir, 0755, true);
+            }
+
+            $extension = $request->image->guessExtension() ?? $request->image->getClientOriginalExtension();
+            $imageName = time() . '_' . uniqid() . '.' . strtolower($extension);
             $request->image->move($userDir, $imageName);
             $validated['image'] = 'users/' . $imageName;
 
             $oldImagePath = $user->image ?? null;
-            if($oldImagePath && file_exists(public_path('images/' . $oldImagePath))){
+            if ($oldImagePath && file_exists(public_path('images/' . $oldImagePath))) {
                 unlink(public_path('images/' . $oldImagePath));
             }
-
         }
 
         $user->update($validated);

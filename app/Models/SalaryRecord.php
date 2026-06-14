@@ -7,7 +7,9 @@ use App\Traits\RecycleBinTrait;
 
 class SalaryRecord extends Model
 {
-        protected $fillable = [
+    use RecycleBinTrait;
+
+    protected $fillable = [
             'user_id',
             'transaction_type',
             'amount',

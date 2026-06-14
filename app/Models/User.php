@@ -15,8 +15,8 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasApiTokens, RecycleBinTrait;
     protected $appends = ['image_url'];
 
-    #[Fillable(['name', 'email', 'password'])]
-    #[Hidden(['password', 'remember_token'])]
+    protected $hidden = ['password', 'remember_token'];
+
 
     /**
      * Get the attributes that should be cast.

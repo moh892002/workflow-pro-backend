@@ -14,10 +14,6 @@ class ReportController extends Controller
     {
         $authUser = $request->user();
 
-        if (! $authUser || ! in_array($authUser->role, ['ADMIN', 'HR_MANAGER'])) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
-        }
-
         if ($authUser->role === 'HR_MANAGER' && (int) $request->user_id === $authUser->id) {
             return response()->json([
                 'success' => false,

@@ -10,27 +10,19 @@ use Illuminate\Http\Request;
 
 class PerformanceReviewController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        // Only admins and HR managers can see all reviews
         $user = $request->user();
+
         if (! in_array($user->role, ['ADMIN', 'HR_MANAGER'])) {
-            // Regular users can only see their own reviews
             return PerformanceReview::where('user_id', $user->id)
                 ->with(['user', 'reviewer'])
                 ->get();
         }
 
-        // Admins and HR can see all reviews
         return PerformanceReview::with(['user', 'reviewer'])->get();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StorePerformanceReviewRequest $request)
     {
         $user = $request->user();
@@ -48,52 +40,25 @@ class PerformanceReviewController extends Controller
         return response()->json($performanceReview->load(['user', 'reviewer']), 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(PerformanceReview $performanceReview)
     {
-        $performanceReview = PerformanceReview::with(['user', 'reviewer'])->findOrFail($id);
+        $this->authorize('view', $performanceReview);
 
-        // Check authorization: user can see their own reviews, or admin/hr can see any
-        $user = request()->user();
-        if ($user->role !== 'ADMIN' && $user->role !== 'HR_MANAGER' && $performanceReview->user_id !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        return $performanceReview;
+        return $performanceReview->load(['user', 'reviewer']);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePerformanceReviewRequest $request, string $id)
+    public function update(UpdatePerformanceReviewRequest $request, PerformanceReview $performanceReview)
     {
-        $performanceReview = PerformanceReview::findOrFail($id);
-        $user = $request->user();
-
-        if ($user->role !== 'ADMIN' && $user->role !== 'HR_MANAGER' && $performanceReview->reviewer_id !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        $this->authorize('update', $performanceReview);
 
         $performanceReview->update($request->validated());
 
         return response()->json($performanceReview->load(['user', 'reviewer']));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(PerformanceReview $performanceReview)
     {
-        $performanceReview = PerformanceReview::findOrFail($id);
-        $user = request()->user();
-
-        // Only admin/hr can delete, or the reviewer if it's their own review?
-        // Typically, only admin/hr can delete reviews.
-        if ($user->role !== 'ADMIN' && $user->role !== 'HR_MANAGER') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        $this->authorize('delete', $performanceReview);
 
         $performanceReview->delete();
 

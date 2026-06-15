@@ -36,7 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-Route::middleware('auth:sanctum')->prefix('reports')->group(function () {
+Route::middleware(['auth:sanctum', 'role:ADMIN,HR_MANAGER'])->prefix('reports')->group(function () {
     Route::get('/attendance', [ReportController::class, 'attendance']);
 });
 

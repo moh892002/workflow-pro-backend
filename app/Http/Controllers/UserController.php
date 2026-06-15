@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\StoreUserRequest;
+use App\Http\Requests\Api\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -23,20 +25,9 @@ class UserController extends Controller
         ], 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $validated = $request->validate([
-            'fullname' => 'required|string',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'role' => 'required|in:ADMIN,HR_MANAGER,EMPLOYEE',
-            'department_id' => 'nullable|exists:departments,id',
-            'job_title' => 'required|string',
-            'image' => 'nullable|string',
-            'username' => 'required|unique:users,username',
-            'salary' => 'required|integer',
-        ]);
-
+        $validated = $request->validated();
         $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
@@ -57,21 +48,11 @@ class UserController extends Controller
         ], 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, $id)
     {
         $user = User::findOrFail($id);
 
-        $validated = $request->validate([
-            'fullname' => 'sometimes|required|string',
-            'email' => 'sometimes|required|email|unique:users,email,'.$id,
-            'password' => 'sometimes|required|string|min:6',
-            'role' => 'sometimes|required|in:ADMIN,HR_MANAGER,EMPLOYEE',
-            'department_id' => 'nullable|exists:departments,id',
-            'job_title' => 'sometimes|required|string',
-            'image' => 'nullable|string',
-            'username' => 'sometimes|required|unique:users,username,'.$id,
-            'salary' => 'sometimes|required|integer',
-        ]);
+        $validated = $request->validated();
 
         if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);

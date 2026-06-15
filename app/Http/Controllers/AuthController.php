@@ -2,19 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\LoginRequest;
 use Auth;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        if (! auth()->attempt($validated)) {
+        if (! auth()->attempt($request->validated())) {
             return response()->json([
                 'message' => 'Invalid credentials',
             ], 401);

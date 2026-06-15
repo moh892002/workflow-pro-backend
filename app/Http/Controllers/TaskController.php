@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\StoreTaskRequest;
+use App\Http\Requests\Api\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Illuminate\Http\Request;
@@ -21,19 +23,9 @@ class TaskController extends Controller
         ], 200);
     }
 
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'priority' => 'required|in:LOW,MEDIUM,HIGH,URGENT',
-            'status' => 'required|in:completed,pending,in_progress',
-            'deadline_date' => 'required|date_format:Y-m-d',
-            'assigned_to' => 'nullable|exists:users,id',
-            // 'project_id' => 'nullable|exists:projects,id',
-        ]);
-
-        $task = Task::create($validated);
+        $task = Task::create($request->validated());
 
         return response()->json([
             'success' => true,
@@ -57,7 +49,7 @@ class TaskController extends Controller
         ], 200);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateTaskRequest $request, $id)
     {
         $task = Task::find($id);
         if (! $task) {
@@ -67,17 +59,7 @@ class TaskController extends Controller
             ], 404);
         }
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'priority' => 'required|in:LOW,MEDIUM,HIGH,URGENT',
-            'status' => 'required|in:completed,pending,in_progress',
-            'deadline_date' => 'required|date_format:Y-m-d',
-            'assigned_to' => 'nullable|exists:users,id',
-            // 'project_id' => 'nullable|exists:projects,id',
-        ]);
-
-        $task->update($validated);
+        $task->update($request->validated());
 
         return response()->json([
             'success' => true,

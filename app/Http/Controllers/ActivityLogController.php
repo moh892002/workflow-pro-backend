@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\StoreActivityLogRequest;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
@@ -40,17 +41,12 @@ class ActivityLogController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreActivityLogRequest $request)
     {
-        $validated = $request->validate([
-            'action' => 'required|string',
-            'details' => 'nullable|string',
-        ]);
-
         $log = ActivityLog::create([
             'user_id' => $request->user()->id,
-            'action' => $validated['action'],
-            'details' => $validated['details'] ?? null,
+            'action' => $request->validated()['action'],
+            'details' => $request->validated()['details'] ?? null,
         ]);
 
         return response()->json([

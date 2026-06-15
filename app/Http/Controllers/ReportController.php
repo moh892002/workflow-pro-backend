@@ -2,22 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\AttendanceReportRequest;
 use App\Models\AttendanceRecord;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function attendance(Request $request): JsonResponse
+    public function attendance(AttendanceReportRequest $request): JsonResponse
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'start_date' => 'required|date_format:Y-m-d',
-            'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
-        ]);
-
         $authUser = $request->user();
 
         if (! $authUser || ! in_array($authUser->role, ['ADMIN', 'HR_MANAGER'])) {

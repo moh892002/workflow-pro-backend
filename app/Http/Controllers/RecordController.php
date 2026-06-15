@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\StoreRecordRequest;
+use App\Http\Requests\Api\UpdateRecordRequest;
 use App\Http\Resources\SalaryRecordResource;
 use App\Models\SalaryRecord;
 use Illuminate\Http\Request;
@@ -21,17 +23,9 @@ class RecordController extends Controller
         ], 200);
     }
 
-    public function store(Request $request)
+    public function store(StoreRecordRequest $request)
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'transaction_type' => 'required|in:salary,bonus,deduction,advance,overtime',
-            'amount' => 'required|numeric',
-            'transaction_date' => 'required|date',
-            'notes' => 'nullable|string',
-        ]);
-
-        $record = SalaryRecord::create($validated);
+        $record = SalaryRecord::create($request->validated());
 
         return response()->json([
             'success' => true,
@@ -55,19 +49,9 @@ class RecordController extends Controller
         ], 200);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateRecordRequest $request, $id)
     {
         $record = SalaryRecord::find($id);
-
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'transaction_type' => 'required|in:salary,bonus,deduction,advance,overtime',
-            'amount' => 'required|numeric',
-            'transaction_date' => 'required|date',
-            'notes' => 'nullable|string',
-        ]);
-
-        $record->update($validated);
 
         if (! $record) {
             return response()->json([
@@ -75,6 +59,8 @@ class RecordController extends Controller
                 'message' => 'Record not found',
             ], 404);
         }
+
+        $record->update($request->validated());
 
         return response()->json([
             'success' => true,

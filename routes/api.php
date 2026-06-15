@@ -9,7 +9,6 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TaskController;
-// use App\Modules\Users\Controllers\UserController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;

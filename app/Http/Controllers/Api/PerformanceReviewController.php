@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StorePerformanceReviewRequest;
+use App\Http\Requests\Api\UpdatePerformanceReviewRequest;
 use App\Models\PerformanceReview;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class PerformanceReviewController extends Controller
 {
@@ -31,35 +31,15 @@ class PerformanceReviewController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePerformanceReviewRequest $request)
     {
         $user = $request->user();
+        $validated = $request->validated();
 
-        // Validate the request
-        $validated = $request->validate([
-            'user_id' => [
-                'required',
-                'exists:users,id',
-                Rule::notIn([$user->id]), // You cannot review yourself unless you're admin/hr?
-            ],
-            'score' => 'required|integer|min:0|max:100',
-            'review_period' => 'required|string',
-            'ai_generated_feedback' => 'nullable|string',
-            'final_feedback' => 'nullable|string',
-            'status' => ['required', Rule::in(['draft', 'pending', 'completed'])],
-        ]);
-
-        // Set the reviewer to the current user if not specified (but we expect it in the request)
-        // For security, we set the reviewer to the current user unless the user is admin/hr specifying another reviewer
-        if (! in_array($user->role, ['ADMIN', 'HR_MANAGER']) && ! isset($validated['reviewer_id'])) {
-            $validated['reviewer_id'] = $user->id;
-        } elseif (isset($validated['reviewer_id'])) {
-            // Validate that the reviewer exists
-            $validated['reviewer_id'] = $request->validate([
-                'reviewer_id' => 'required|exists:users,id',
-            ])['reviewer_id'];
+        if ($request->has('reviewer_id')) {
+            $request->validate(['reviewer_id' => 'exists:users,id']);
+            $validated['reviewer_id'] = $request->reviewer_id;
         } else {
-            // Default to current user as reviewer
             $validated['reviewer_id'] = $user->id;
         }
 
@@ -87,25 +67,16 @@ class PerformanceReviewController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdatePerformanceReviewRequest $request, string $id)
     {
         $performanceReview = PerformanceReview::findOrFail($id);
         $user = $request->user();
 
-        // Authorization: only the reviewer can update (unless admin/hr)
         if ($user->role !== 'ADMIN' && $user->role !== 'HR_MANAGER' && $performanceReview->reviewer_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $validated = $request->validate([
-            'score' => 'sometimes|integer|min:0|max:100',
-            'review_period' => 'sometimes|string',
-            'ai_generated_feedback' => 'sometimes|string',
-            'final_feedback' => 'sometimes|string',
-            'status' => ['sometimes', Rule::in(['draft', 'pending', 'completed'])],
-        ]);
-
-        $performanceReview->update($validated);
+        $performanceReview->update($request->validated());
 
         return response()->json($performanceReview->load(['user', 'reviewer']));
     }

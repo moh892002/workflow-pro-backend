@@ -28,10 +28,7 @@ class AttendanceController extends Controller
         $perPage = $request->input('per_page', 50);
         $records = $query->latest('date')->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'data' => AttendanceResource::collection($records),
-        ]);
+        return $this->success(AttendanceResource::collection($records));
     }
 
     public function today(Request $request)
@@ -39,65 +36,44 @@ class AttendanceController extends Controller
         $record = $this->attendanceService->today($request->user());
 
         if (! $record) {
-            return response()->json([
-                'success' => true,
-                'data' => null,
-            ]);
+            return response()->json(['success' => true, 'data' => null]);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => new AttendanceResource($record),
-        ]);
+        return $this->success(new AttendanceResource($record));
     }
 
     public function checkIn(Request $request)
     {
         $record = $this->attendanceService->checkIn($request->user());
 
-        return response()->json([
-            'success' => true,
-            'data' => new AttendanceResource($record),
-        ], 201);
+        return $this->created(new AttendanceResource($record));
     }
 
     public function checkOut(Request $request, AttendanceRecord $attendanceRecord)
     {
         $record = $this->attendanceService->checkOut($request->user(), $attendanceRecord);
 
-        return response()->json([
-            'success' => true,
-            'data' => new AttendanceResource($record),
-        ]);
+        return $this->success(new AttendanceResource($record));
     }
 
     public function autoCheckIn(Request $request)
     {
         $record = $this->attendanceService->autoCheckIn($request->user());
 
-        return response()->json([
-            'success' => true,
-            'data' => new AttendanceResource($record),
-        ], 201);
+        return $this->created(new AttendanceResource($record));
     }
 
     public function autoCheckOut(Request $request)
     {
         $record = $this->attendanceService->autoCheckOut($request->user());
 
-        return response()->json([
-            'success' => true,
-            'data' => new AttendanceResource($record),
-        ]);
+        return $this->success(new AttendanceResource($record));
     }
 
     public function history(Request $request)
     {
         $records = $this->attendanceService->history($request->user(), $request->input('per_page', 30));
 
-        return response()->json([
-            'success' => true,
-            'data' => AttendanceResource::collection($records),
-        ]);
+        return $this->success(AttendanceResource::collection($records));
     }
 }

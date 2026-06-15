@@ -18,71 +18,45 @@ class TaskController extends Controller
     {
         $tasks = $this->taskService->list($request->only(['per_page', 'page']));
 
-        return response()->json([
-            'success' => true,
-            'data' => TaskResource::collection($tasks),
-        ], 200);
+        return $this->success(TaskResource::collection($tasks));
     }
 
     public function store(StoreTaskRequest $request)
     {
-        $task = $this->taskService->create($request->validated());
-
-        return response()->json([
-            'success' => true,
-            'data' => $task,
-        ], 201);
+        return $this->created($this->taskService->create($request->validated()));
     }
 
     public function show($id)
     {
         $task = $this->taskService->find($id);
         if (! $task) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Task not found',
-            ], 404);
+            return $this->error('Task not found', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $task,
-        ], 200);
+        return $this->success($task);
     }
 
     public function update(UpdateTaskRequest $request, $id)
     {
         $task = $this->taskService->find($id);
         if (! $task) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Task not found',
-            ], 404);
+            return $this->error('Task not found', 404);
         }
 
         $this->taskService->update($task, $request->validated());
 
-        return response()->json([
-            'success' => true,
-            'data' => $task,
-        ], 200);
+        return $this->success($task);
     }
 
     public function destroy($id)
     {
         $task = $this->taskService->find($id);
         if (! $task) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Task not found',
-            ], 404);
+            return $this->error('Task not found', 404);
         }
 
         $this->taskService->delete($task);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Task deleted successfully',
-        ], 200);
+        return $this->message('Task deleted successfully');
     }
 }

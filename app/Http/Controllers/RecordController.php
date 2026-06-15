@@ -18,36 +18,22 @@ class RecordController extends Controller
     {
         $records = $this->recordService->list($request->only(['per_page', 'page']));
 
-        return response()->json([
-            'success' => true,
-            'data' => SalaryRecordResource::collection($records),
-        ], 200);
+        return $this->success(SalaryRecordResource::collection($records));
     }
 
     public function store(StoreRecordRequest $request)
     {
-        $record = $this->recordService->create($request->validated());
-
-        return response()->json([
-            'success' => true,
-            'data' => $record,
-        ], 201);
+        return $this->created($this->recordService->create($request->validated()));
     }
 
     public function show($id)
     {
         $record = $this->recordService->find($id);
         if (! $record) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Record not found',
-            ], 404);
+            return $this->error('Record not found', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $record,
-        ], 200);
+        return $this->success($record);
     }
 
     public function update(UpdateRecordRequest $request, $id)
@@ -55,35 +41,23 @@ class RecordController extends Controller
         $record = $this->recordService->find($id);
 
         if (! $record) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Record not found',
-            ], 404);
+            return $this->error('Record not found', 404);
         }
 
         $this->recordService->update($record, $request->validated());
 
-        return response()->json([
-            'success' => true,
-            'data' => $record,
-        ], 200);
+        return $this->success($record);
     }
 
     public function destroy($id)
     {
         $record = $this->recordService->find($id);
         if (! $record) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Record not found',
-            ], 404);
+            return $this->error('Record not found', 404);
         }
 
         $this->recordService->delete($record);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Record deleted successfully',
-        ], 200);
+        return $this->message('Record deleted successfully');
     }
 }

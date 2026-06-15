@@ -22,30 +22,21 @@ class UserController extends Controller
 
         $users = User::with('department')->paginate($perPage, ['*'], 'page', $page);
 
-        return response()->json([
-            'success' => true,
-            'data' => UserResource::collection($users),
-        ], 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
+        return $this->success(UserResource::collection($users), null, 200, JSON_UNESCAPED_SLASHES);
     }
 
     public function store(StoreUserRequest $request)
     {
         $user = $this->userService->create($request->validated());
 
-        return response()->json([
-            'success' => true,
-            'data' => $user,
-        ], 201)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
+        return $this->created($user, null, JSON_UNESCAPED_SLASHES);
     }
 
     public function show($id)
     {
         $user = User::with('department')->findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'data' => new UserResource($user),
-        ], 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
+        return $this->success(new UserResource($user), null, 200, JSON_UNESCAPED_SLASHES);
     }
 
     public function update(UpdateUserRequest $request, $id)
@@ -53,27 +44,18 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $this->userService->update($user, $request->validated());
 
-        return response()->json([
-            'success' => true,
-            'data' => $user,
-        ], 200)->setEncodingOptions(JSON_UNESCAPED_SLASHES);
+        return $this->success($user, null, 200, JSON_UNESCAPED_SLASHES);
     }
 
     public function destroy($id)
     {
         $user = User::find($id);
         if (! $user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found',
-            ], 404);
+            return $this->error('User not found', 404);
         }
 
         $this->userService->delete($user);
 
-        return response()->json([
-            'success' => true,
-            'message' => $user->username . ' deleted successfully',
-        ], 200);
+        return $this->message($user->username . ' deleted successfully');
     }
 }

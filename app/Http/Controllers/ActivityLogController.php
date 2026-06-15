@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ActivityLogged;
 use App\Http\Requests\Api\StoreActivityLogRequest;
 use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
@@ -39,11 +40,14 @@ class ActivityLogController extends Controller
     public function store(StoreActivityLogRequest $request)
     {
         $validated = $request->validated();
+
         $log = $this->logService->log(
             $request->user(),
             $validated['action'],
             $validated['details'] ?? null,
         );
+
+        ActivityLogged::dispatch($request->user(), $validated['action'], $validated['details'] ?? null);
 
         return response()->json([
             'success' => true,

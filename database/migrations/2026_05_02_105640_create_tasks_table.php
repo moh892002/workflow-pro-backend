@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('status')->default('pending');
             $table->dateTime('deadline_date');
             $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
-            //            $table->foreignId('project_id')->nullable()->constrained()->onDelete('set null');
             $table->softDeletes();
             $table->index('status');
             $table->index('priority');

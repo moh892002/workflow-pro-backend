@@ -21,12 +21,4 @@ class SalaryRecord extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    // public function processor() {
-    //     return $this->belongsTo(User::class, 'processed_by');
-    // }
-
-    // public function transactions() {
-    //     return $this->hasMany(Transaction::class, 'salary_record_id', 'transaction_id');
-    // }
 }

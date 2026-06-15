@@ -47,18 +47,6 @@ class User extends Authenticatable
         ];
     }
 
-    // Projects managed by this user
-    // public function managedProjects() {
-    //     return $this->hasMany(Project::class, 'managed_by');
-    // }
-
-    // Projects where the user is a member
-    public function projects()
-    {
-        return $this->belongsToMany(Project::class, 'project_members')
-            ->withPivot('role_in_project');
-    }
-
     public function tasks()
     {
         return $this->hasMany(Task::class, 'assigned_to');

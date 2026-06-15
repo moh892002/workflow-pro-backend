@@ -5,17 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Api\StoreTaskRequest;
 use App\Http\Requests\Api\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
-use App\Models\Task;
+use App\Services\TaskService;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
+    public function __construct(
+        private readonly TaskService $taskService,
+    ) {}
+
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 15);
-        $page = $request->input('page', 1);
-
-        $tasks = Task::with('user')->paginate($perPage, ['*'], 'page', $page);
+        $tasks = $this->taskService->list($request->only(['per_page', 'page']));
 
         return response()->json([
             'success' => true,
@@ -25,7 +26,7 @@ class TaskController extends Controller
 
     public function store(StoreTaskRequest $request)
     {
-        $task = Task::create($request->validated());
+        $task = $this->taskService->create($request->validated());
 
         return response()->json([
             'success' => true,
@@ -35,7 +36,7 @@ class TaskController extends Controller
 
     public function show($id)
     {
-        $task = Task::with('user')->find($id);
+        $task = $this->taskService->find($id);
         if (! $task) {
             return response()->json([
                 'success' => false,
@@ -51,7 +52,7 @@ class TaskController extends Controller
 
     public function update(UpdateTaskRequest $request, $id)
     {
-        $task = Task::find($id);
+        $task = $this->taskService->find($id);
         if (! $task) {
             return response()->json([
                 'success' => false,
@@ -59,7 +60,7 @@ class TaskController extends Controller
             ], 404);
         }
 
-        $task->update($request->validated());
+        $this->taskService->update($task, $request->validated());
 
         return response()->json([
             'success' => true,
@@ -69,14 +70,15 @@ class TaskController extends Controller
 
     public function destroy($id)
     {
-        $task = Task::find($id);
+        $task = $this->taskService->find($id);
         if (! $task) {
             return response()->json([
                 'success' => false,
                 'message' => 'Task not found',
             ], 404);
         }
-        $task->delete();
+
+        $this->taskService->delete($task);
 
         return response()->json([
             'success' => true,

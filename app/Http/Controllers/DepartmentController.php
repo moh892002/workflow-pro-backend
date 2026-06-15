@@ -5,33 +5,29 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Api\StoreDepartmentRequest;
 use App\Http\Requests\Api\UpdateDepartmentRequest;
 use App\Http\Resources\DepartmentResource;
-use App\Models\Department;
+use App\Services\DepartmentService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class DepartmentController extends Controller
 {
+    public function __construct(
+        private readonly DepartmentService $departmentService,
+    ) {}
+
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 15);
         $page = $request->input('page', 1);
-        $cacheKey = "departments:list:page={$page}:per_page={$perPage}";
-
-        $departments = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($perPage, $page) {
-            return DepartmentResource::collection(
-                Department::paginate($perPage, ['*'], 'page', $page)
-            )->resolve();
-        });
 
         return response()->json([
             'success' => true,
-            'data' => $departments,
+            'data' => $this->departmentService->list($perPage, $page),
         ], 200);
     }
 
     public function store(StoreDepartmentRequest $request)
     {
-        $department = Department::create($request->validated());
+        $department = $this->departmentService->create($request->validated());
 
         return response()->json([
             'success' => true,
@@ -41,7 +37,7 @@ class DepartmentController extends Controller
 
     public function show($id)
     {
-        $department = Department::find($id);
+        $department = $this->departmentService->find($id);
 
         if (! $department) {
             return response()->json([
@@ -58,7 +54,7 @@ class DepartmentController extends Controller
 
     public function update(UpdateDepartmentRequest $request, $id)
     {
-        $department = Department::find($id);
+        $department = $this->departmentService->find($id);
         if (! $department) {
             return response()->json([
                 'success' => false,
@@ -66,7 +62,7 @@ class DepartmentController extends Controller
             ], 404);
         }
 
-        $department->update($request->validated());
+        $this->departmentService->update($department, $request->validated());
 
         return response()->json([
             'success' => true,
@@ -76,7 +72,7 @@ class DepartmentController extends Controller
 
     public function destroy($id)
     {
-        $department = Department::find($id);
+        $department = $this->departmentService->find($id);
 
         if (! $department) {
             return response()->json([
@@ -85,7 +81,7 @@ class DepartmentController extends Controller
             ], 404);
         }
 
-        $department->delete();
+        $this->departmentService->delete($department);
 
         return response()->json([
             'success' => true,

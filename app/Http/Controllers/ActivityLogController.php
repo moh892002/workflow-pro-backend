@@ -3,23 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\StoreActivityLogRequest;
-use App\Models\ActivityLog;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 
 class ActivityLogController extends Controller
 {
+    public function __construct(
+        private readonly ActivityLogService $logService,
+    ) {}
+
     public function index(Request $request)
     {
-        $user = $request->user();
-
-        $query = ActivityLog::with('user');
-
-        if (! in_array($user->role, ['ADMIN', 'HR_MANAGER'])) {
-            $query->where('user_id', $user->id);
-        }
-
-        $perPage = $request->input('per_page', 20);
-        $logs = $query->latest()->paginate($perPage);
+        $logs = $this->logService->list($request->user(), $request->only(['per_page']));
 
         return response()->json([
             'success' => true,
@@ -43,11 +38,12 @@ class ActivityLogController extends Controller
 
     public function store(StoreActivityLogRequest $request)
     {
-        $log = ActivityLog::create([
-            'user_id' => $request->user()->id,
-            'action' => $request->validated()['action'],
-            'details' => $request->validated()['details'] ?? null,
-        ]);
+        $validated = $request->validated();
+        $log = $this->logService->log(
+            $request->user(),
+            $validated['action'],
+            $validated['details'] ?? null,
+        );
 
         return response()->json([
             'success' => true,

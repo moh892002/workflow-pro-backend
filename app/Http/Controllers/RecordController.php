@@ -5,17 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Api\StoreRecordRequest;
 use App\Http\Requests\Api\UpdateRecordRequest;
 use App\Http\Resources\SalaryRecordResource;
-use App\Models\SalaryRecord;
+use App\Services\SalaryRecordService;
 use Illuminate\Http\Request;
 
 class RecordController extends Controller
 {
+    public function __construct(
+        private readonly SalaryRecordService $recordService,
+    ) {}
+
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 15);
-        $page = $request->input('page', 1);
-
-        $records = SalaryRecord::with('user')->paginate($perPage, ['*'], 'page', $page);
+        $records = $this->recordService->list($request->only(['per_page', 'page']));
 
         return response()->json([
             'success' => true,
@@ -25,7 +26,7 @@ class RecordController extends Controller
 
     public function store(StoreRecordRequest $request)
     {
-        $record = SalaryRecord::create($request->validated());
+        $record = $this->recordService->create($request->validated());
 
         return response()->json([
             'success' => true,
@@ -35,7 +36,7 @@ class RecordController extends Controller
 
     public function show($id)
     {
-        $record = SalaryRecord::with('user')->find($id);
+        $record = $this->recordService->find($id);
         if (! $record) {
             return response()->json([
                 'success' => false,
@@ -51,7 +52,7 @@ class RecordController extends Controller
 
     public function update(UpdateRecordRequest $request, $id)
     {
-        $record = SalaryRecord::find($id);
+        $record = $this->recordService->find($id);
 
         if (! $record) {
             return response()->json([
@@ -60,7 +61,7 @@ class RecordController extends Controller
             ], 404);
         }
 
-        $record->update($request->validated());
+        $this->recordService->update($record, $request->validated());
 
         return response()->json([
             'success' => true,
@@ -70,14 +71,15 @@ class RecordController extends Controller
 
     public function destroy($id)
     {
-        $record = SalaryRecord::find($id);
+        $record = $this->recordService->find($id);
         if (! $record) {
             return response()->json([
                 'success' => false,
                 'message' => 'Record not found',
             ], 404);
         }
-        $record->delete();
+
+        $this->recordService->delete($record);
 
         return response()->json([
             'success' => true,

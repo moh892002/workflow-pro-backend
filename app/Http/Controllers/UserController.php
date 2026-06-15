@@ -6,17 +6,20 @@ use App\Http\Requests\Api\StoreUserRequest;
 use App\Http\Requests\Api\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    public function __construct(
+        private readonly UserService $userService,
+    ) {}
+
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 15);
         $page = $request->input('page', 1);
 
-        // Get users directly without caching paginator objects
         $users = User::with('department')->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
@@ -27,10 +30,7 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request)
     {
-        $validated = $request->validated();
-        $validated['password'] = Hash::make($validated['password']);
-
-        $user = User::create($validated);
+        $user = $this->userService->create($request->validated());
 
         return response()->json([
             'success' => true,
@@ -51,16 +51,7 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, $id)
     {
         $user = User::findOrFail($id);
-
-        $validated = $request->validated();
-
-        if (! empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
-        }
-
-        $user->update($validated);
+        $this->userService->update($user, $request->validated());
 
         return response()->json([
             'success' => true,
@@ -78,15 +69,11 @@ class UserController extends Controller
             ], 404);
         }
 
-        $user->delete();
-
-        if ($user->image && file_exists(public_path('images/'.$user->image))) {
-            unlink(public_path('images/'.$user->image));
-        }
+        $this->userService->delete($user);
 
         return response()->json([
             'success' => true,
-            'message' => $user->username.' deleted successfully',
+            'message' => $user->username . ' deleted successfully',
         ], 200);
     }
 }

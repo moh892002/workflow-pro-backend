@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AttendanceResource;
 use App\Models\AttendanceRecord;
+use App\Services\AttendanceService;
 use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {
+    public function __construct(
+        private readonly AttendanceService $attendanceService,
+    ) {}
+
     public function index(Request $request)
     {
         $query = AttendanceRecord::with('user');
@@ -31,12 +36,7 @@ class AttendanceController extends Controller
 
     public function today(Request $request)
     {
-        $user = $request->user();
-        $today = now()->toDateString();
-
-        $record = AttendanceRecord::where('user_id', $user->id)
-            ->where('date', $today)
-            ->first();
+        $record = $this->attendanceService->today($request->user());
 
         if (! $record) {
             return response()->json([
@@ -53,28 +53,7 @@ class AttendanceController extends Controller
 
     public function checkIn(Request $request)
     {
-        $user = $request->user();
-        $today = now()->toDateString();
-
-        $existing = AttendanceRecord::where('user_id', $user->id)
-            ->where('date', $today)
-            ->first();
-
-        if ($existing) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Already checked in today',
-            ], 409);
-        }
-
-        $isLate = now()->hour > 9 || (now()->hour === 9 && now()->minute > 0);
-
-        $record = AttendanceRecord::create([
-            'user_id' => $user->id,
-            'date' => $today,
-            'check_in' => now(),
-            'status' => $isLate ? 'LATE' : 'PRESENT',
-        ]);
+        $record = $this->attendanceService->checkIn($request->user());
 
         return response()->json([
             'success' => true,
@@ -84,54 +63,17 @@ class AttendanceController extends Controller
 
     public function checkOut(Request $request, AttendanceRecord $attendanceRecord)
     {
-        if ($attendanceRecord->user_id !== $request->user()->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized',
-            ], 403);
-        }
-
-        if ($attendanceRecord->check_out) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Already checked out',
-            ], 409);
-        }
-
-        $attendanceRecord->update([
-            'check_out' => now(),
-        ]);
+        $record = $this->attendanceService->checkOut($request->user(), $attendanceRecord);
 
         return response()->json([
             'success' => true,
-            'data' => new AttendanceResource($attendanceRecord),
+            'data' => new AttendanceResource($record),
         ]);
     }
 
     public function autoCheckIn(Request $request)
     {
-        $user = $request->user();
-        $today = now()->toDateString();
-
-        $existing = AttendanceRecord::where('user_id', $user->id)
-            ->where('date', $today)
-            ->first();
-
-        if ($existing) {
-            return response()->json([
-                'success' => true,
-                'data' => new AttendanceResource($existing),
-            ]);
-        }
-
-        $isLate = now()->hour > 9 || (now()->hour === 9 && now()->minute > 0);
-
-        $record = AttendanceRecord::create([
-            'user_id' => $user->id,
-            'date' => $today,
-            'check_in' => now(),
-            'status' => $isLate ? 'LATE' : 'PRESENT',
-        ]);
+        $record = $this->attendanceService->autoCheckIn($request->user());
 
         return response()->json([
             'success' => true,
@@ -141,30 +83,7 @@ class AttendanceController extends Controller
 
     public function autoCheckOut(Request $request)
     {
-        $user = $request->user();
-        $today = now()->toDateString();
-
-        $record = AttendanceRecord::where('user_id', $user->id)
-            ->where('date', $today)
-            ->first();
-
-        if (! $record) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No check-in record found for today',
-            ], 404);
-        }
-
-        if ($record->check_out) {
-            return response()->json([
-                'success' => true,
-                'data' => new AttendanceResource($record),
-            ]);
-        }
-
-        $record->update([
-            'check_out' => now(),
-        ]);
+        $record = $this->attendanceService->autoCheckOut($request->user());
 
         return response()->json([
             'success' => true,
@@ -174,11 +93,7 @@ class AttendanceController extends Controller
 
     public function history(Request $request)
     {
-        $user = $request->user();
-
-        $records = AttendanceRecord::where('user_id', $user->id)
-            ->latest('date')
-            ->paginate($request->input('per_page', 30));
+        $records = $this->attendanceService->history($request->user(), $request->input('per_page', 30));
 
         return response()->json([
             'success' => true,

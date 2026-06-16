@@ -49,7 +49,7 @@ class UserController extends Controller
 
         $this->userService->update($user, $request->validated());
 
-        return $this->success($user, null, 200, JSON_UNESCAPED_SLASHES);
+        return $this->success($user->load('department'), null, 200, JSON_UNESCAPED_SLASHES);
     }
 
     public function destroy(User $user)

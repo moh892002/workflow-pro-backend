@@ -33,7 +33,7 @@ class RecordController extends Controller
     {
         $this->authorize('view', $record);
 
-        return $this->success($record);
+        return $this->success($record->load('user'));
     }
 
     public function update(UpdateRecordRequest $request, SalaryRecord $record)

@@ -16,7 +16,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $user = Auth::user();
+        $user = Auth::user()->load('department');
 
         $token = $user->createToken('api-token')->plainTextToken;
 

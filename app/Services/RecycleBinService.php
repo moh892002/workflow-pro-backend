@@ -5,14 +5,13 @@ namespace App\Services;
 use App\Models\RecycleBin;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class RecycleBinService
 {
     public function list(array $params): array
     {
-        $query = RecycleBin::query();
+        $query = RecycleBin::with('user');
 
         if (! empty($params['model'])) {
             $query->where('deleted_model', $this->normalizeModel($params['model']));
@@ -28,23 +27,14 @@ class RecycleBinService
 
         $perPage = $params['per_page'] ?? 15;
         $page = $params['page'] ?? 1;
-        $cacheKey = 'recycle_bin:index:' . md5(implode(':', [
-            $params['model'] ?? '',
-            $params['table'] ?? '',
-            $params['search'] ?? '',
-            $perPage,
-            $page,
-        ]));
 
-        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($query, $perPage) {
-            return $query->latest()->paginate($perPage)->toArray();
-        });
+        return $query->latest()->paginate($perPage, ['*'], 'page', $page)->toArray();
     }
 
     public function showByModel(string $model, array $params): array
     {
         $model = $this->normalizeModel($model);
-        $query = RecycleBin::where('deleted_model', $model);
+        $query = RecycleBin::with('user')->where('deleted_model', $model);
 
         if (! empty($params['table'])) {
             $query->where('deleted_table_name', $params['table']);
@@ -89,13 +79,20 @@ class RecycleBinService
     {
         $model = $this->normalizeModel($model);
 
-        $recycleBin = RecycleBin::where('deleted_model', $model)
-            ->where('deleted_item_id', $id)
-            ->firstOrFail();
+        return DB::transaction(function () use ($model, $id) {
+            $recycleBin = RecycleBin::where('deleted_model', $model)
+                ->where('deleted_item_id', $id)
+                ->firstOrFail();
 
-        $recycleBin->forceDelete();
+            $modelInstance = $model::withTrashed()->find($id);
+            if ($modelInstance) {
+                $modelInstance->forceDelete();
+            }
 
-        return $recycleBin;
+            $recycleBin->forceDelete();
+
+            return $recycleBin;
+        });
     }
 
     public function bulkRestore(array $records): array
@@ -133,22 +130,29 @@ class RecycleBinService
 
     public function bulkForceDelete(array $records): array
     {
-        $deleted = [];
+        return DB::transaction(function () use ($records) {
+            $deleted = [];
 
-        foreach ($records as $record) {
-            $model = $this->normalizeModel($record['model']);
-            $id = $record['id'];
+            foreach ($records as $record) {
+                $model = $this->normalizeModel($record['model']);
+                $id = $record['id'];
 
-            $recycleBin = RecycleBin::where('deleted_model', $model)
-                ->where('deleted_item_id', $id)
-                ->firstOrFail();
+                $recycleBin = RecycleBin::where('deleted_model', $model)
+                    ->where('deleted_item_id', $id)
+                    ->firstOrFail();
 
-            $recycleBin->forceDelete();
+                $modelInstance = $model::withTrashed()->find($id);
+                if ($modelInstance) {
+                    $modelInstance->forceDelete();
+                }
 
-            $deleted[] = $recycleBin;
-        }
+                $recycleBin->forceDelete();
 
-        return $deleted;
+                $deleted[] = $recycleBin;
+            }
+
+            return $deleted;
+        });
     }
 
     private function normalizeModel(string $model): string

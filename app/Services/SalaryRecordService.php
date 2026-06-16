@@ -11,7 +11,7 @@ class SalaryRecordService
     public function list(User $user, array $params = []): LengthAwarePaginator
     {
         $perPage = $params['per_page'] ?? 15;
-        $query = SalaryRecord::with('user');
+        $query = SalaryRecord::with('user.department');
 
         if ($user->role === 'EMPLOYEE') {
             $query->where('user_id', $user->id);

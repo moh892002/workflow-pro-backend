@@ -51,7 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/login', [AuthController::class, 'login']);
 
 // Recycle Bin API Routes
-Route::middleware(['auth:sanctum', 'role:ADMIN'])->prefix('recycle-bin')->group(function () {
+Route::middleware(['auth:sanctum', 'role:ADMIN,HR_MANAGER'])->prefix('recycle-bin')->group(function () {
     Route::get('/', [RecycleBinController::class, 'index']);
     Route::get('/{model}', [RecycleBinController::class, 'showByModel']);
     Route::post('/{model}/{id}/restore', [RecycleBinController::class, 'restore']);

@@ -17,6 +17,8 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorize('viewAny', User::class);
+
         $perPage = $request->input('per_page', 15);
         $page = $request->input('page', 1);
 
@@ -27,32 +29,32 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request)
     {
+        $this->authorize('create', User::class);
+
         $user = $this->userService->create($request->validated());
 
         return $this->created($user, null, JSON_UNESCAPED_SLASHES);
     }
 
-    public function show($id)
+    public function show(User $user)
     {
-        $user = User::with('department')->findOrFail($id);
+        $this->authorize('view', $user);
 
-        return $this->success(new UserResource($user), null, 200, JSON_UNESCAPED_SLASHES);
+        return $this->success(new UserResource($user->load('department')), null, 200, JSON_UNESCAPED_SLASHES);
     }
 
-    public function update(UpdateUserRequest $request, $id)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $user = User::findOrFail($id);
+        $this->authorize('update', $user);
+
         $this->userService->update($user, $request->validated());
 
         return $this->success($user, null, 200, JSON_UNESCAPED_SLASHES);
     }
 
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $user = User::find($id);
-        if (! $user) {
-            return $this->error('User not found', 404);
-        }
+        $this->authorize('delete', $user);
 
         $this->userService->delete($user);
 

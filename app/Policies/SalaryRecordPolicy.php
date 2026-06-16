@@ -14,21 +14,22 @@ class SalaryRecordPolicy
 
     public function view(User $user, SalaryRecord $salaryRecord): bool
     {
-        return true;
+        return in_array($user->role, ['ADMIN', 'HR_MANAGER'])
+            || $user->id === $salaryRecord->user_id;
     }
 
     public function create(User $user): bool
     {
-        return true;
+        return in_array($user->role, ['ADMIN', 'HR_MANAGER']);
     }
 
     public function update(User $user, SalaryRecord $salaryRecord): bool
     {
-        return true;
+        return in_array($user->role, ['ADMIN', 'HR_MANAGER']);
     }
 
     public function delete(User $user, SalaryRecord $salaryRecord): bool
     {
-        return true;
+        return in_array($user->role, ['ADMIN', 'HR_MANAGER']);
     }
 }

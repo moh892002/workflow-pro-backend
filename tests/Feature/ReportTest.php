@@ -1,26 +1,9 @@
 <?php
 
-use App\Models\User;
 use App\Models\AttendanceRecord;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Hash;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
-
-function makeUser(array $overrides = []): User
-{
-    $attrs = array_merge([
-        'fullname' => 'Test User',
-        'username' => 'test_' . uniqid(),
-        'email' => uniqid() . '@example.com',
-        'role' => 'EMPLOYEE',
-        'job_title' => 'Tester',
-        'salary' => 0,
-        'password' => Hash::make('password'),
-    ], $overrides);
-
-    return User::create($attrs);
-}
 
 test('admin can generate attendance report', function () {
     $admin = makeUser(['role' => 'ADMIN', 'fullname' => 'Admin']);

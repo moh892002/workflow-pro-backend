@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Api\StoreTaskRequest;
 use App\Http\Requests\Api\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
+use App\Models\Task;
 use App\Services\TaskService;
 use Illuminate\Http\Request;
 
@@ -16,44 +17,53 @@ class TaskController extends Controller
 
     public function index(Request $request)
     {
-        $tasks = $this->taskService->list($request->only(['per_page', 'page']));
+        $tasks = $this->taskService->list($request->user(), $request->only(['per_page', 'page']));
 
         return $this->success(TaskResource::collection($tasks));
     }
 
     public function store(StoreTaskRequest $request)
     {
-        return $this->created($this->taskService->create($request->validated()));
+        if ($request->user()->role === 'EMPLOYEE' && $request->filled('assigned_to') && $request->input('assigned_to') !== $request->user()->id) {
+            return $this->error('Employees may only assign tasks to themselves', 403);
+        }
+
+        $data = $request->validated();
+        if (! $request->filled('assigned_to')) {
+            $data['assigned_to'] = $request->user()->id;
+        }
+
+        return $this->created($this->taskService->create($data));
     }
 
-    public function show($id)
+    public function show(Task $task)
     {
-        $task = $this->taskService->find($id);
-        if (! $task) {
-            return $this->error('Task not found', 404);
-        }
+        $this->authorize('view', $task);
 
         return $this->success($task);
     }
 
-    public function update(UpdateTaskRequest $request, $id)
+    public function update(UpdateTaskRequest $request, Task $task)
     {
-        $task = $this->taskService->find($id);
-        if (! $task) {
-            return $this->error('Task not found', 404);
+        $this->authorize('update', $task);
+
+        if ($request->user()->role === 'EMPLOYEE' && $request->filled('assigned_to') && $request->input('assigned_to') !== $request->user()->id) {
+            return $this->error('Employees may only assign tasks to themselves', 403);
         }
 
-        $this->taskService->update($task, $request->validated());
+        $data = $request->validated();
+        if (! $request->filled('assigned_to')) {
+            $data['assigned_to'] = $task->assigned_to;
+        }
+
+        $this->taskService->update($task, $data);
 
         return $this->success($task);
     }
 
-    public function destroy($id)
+    public function destroy(Task $task)
     {
-        $task = $this->taskService->find($id);
-        if (! $task) {
-            return $this->error('Task not found', 404);
-        }
+        $this->authorize('delete', $task);
 
         $this->taskService->delete($task);
 

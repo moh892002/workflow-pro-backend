@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Api\StoreRecordRequest;
 use App\Http\Requests\Api\UpdateRecordRequest;
 use App\Http\Resources\SalaryRecordResource;
+use App\Models\SalaryRecord;
 use App\Services\SalaryRecordService;
 use Illuminate\Http\Request;
 
@@ -16,45 +17,37 @@ class RecordController extends Controller
 
     public function index(Request $request)
     {
-        $records = $this->recordService->list($request->only(['per_page', 'page']));
+        $records = $this->recordService->list($request->user(), $request->only(['per_page', 'page']));
 
         return $this->success(SalaryRecordResource::collection($records));
     }
 
     public function store(StoreRecordRequest $request)
     {
+        $this->authorize('create', SalaryRecord::class);
+
         return $this->created($this->recordService->create($request->validated()));
     }
 
-    public function show($id)
+    public function show(SalaryRecord $record)
     {
-        $record = $this->recordService->find($id);
-        if (! $record) {
-            return $this->error('Record not found', 404);
-        }
+        $this->authorize('view', $record);
 
         return $this->success($record);
     }
 
-    public function update(UpdateRecordRequest $request, $id)
+    public function update(UpdateRecordRequest $request, SalaryRecord $record)
     {
-        $record = $this->recordService->find($id);
-
-        if (! $record) {
-            return $this->error('Record not found', 404);
-        }
+        $this->authorize('update', $record);
 
         $this->recordService->update($record, $request->validated());
 
         return $this->success($record);
     }
 
-    public function destroy($id)
+    public function destroy(SalaryRecord $record)
     {
-        $record = $this->recordService->find($id);
-        if (! $record) {
-            return $this->error('Record not found', 404);
-        }
+        $this->authorize('delete', $record);
 
         $this->recordService->delete($record);
 

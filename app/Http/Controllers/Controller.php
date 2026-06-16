@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
 
 abstract class Controller
 {
+    use AuthorizesRequests, ValidatesRequests;
+
     protected function success(mixed $data = null, ?string $message = null, int $status = 200, int $options = 0): JsonResponse
     {
         $response = ['success' => true];

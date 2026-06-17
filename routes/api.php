@@ -48,7 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/attendance/auto-check-out', [AttendanceController::class, 'autoCheckOut']);
 });
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 // Recycle Bin API Routes
 Route::middleware(['auth:sanctum', 'role:ADMIN,HR_MANAGER'])->prefix('recycle-bin')->group(function () {

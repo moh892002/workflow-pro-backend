@@ -16,8 +16,11 @@ use App\Policies\PerformanceReviewPolicy;
 use App\Policies\SalaryRecordPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\UserPolicy;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,5 +38,29 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(AttendanceRecord::class, AttendanceRecordPolicy::class);
         Gate::policy(ActivityLog::class, ActivityLogPolicy::class);
         Gate::policy(PerformanceReview::class, PerformanceReviewPolicy::class);
+
+        RateLimiter::for('login', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
+        $this->validateEnvironment();
+    }
+
+    private function validateEnvironment(): void
+    {
+        if (! app()->environment('production')) {
+            return;
+        }
+
+        $required = ['APP_KEY'];
+        foreach ($required as $key) {
+            if (empty(env($key))) {
+                throw new \RuntimeException("Environment variable {$key} is not set.");
+            }
+        }
+
+        if (env('APP_DEBUG') === true) {
+            throw new \RuntimeException('APP_DEBUG must be false in production.');
+        }
     }
 }

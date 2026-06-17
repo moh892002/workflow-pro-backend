@@ -38,7 +38,7 @@ class RecycleBinController extends Controller
 
             return $this->success(new RecycleBinResource($recycleBin), 'Record restored successfully');
         } catch (\Exception $e) {
-            return $this->error($e->getMessage(), Response::HTTP_NOT_FOUND);
+            return $this->error('Record not found or could not be restored', Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -49,7 +49,7 @@ class RecycleBinController extends Controller
 
             return $this->success(new RecycleBinResource($recycleBin), 'Record permanently deleted successfully');
         } catch (\Exception $e) {
-            return $this->error($e->getMessage(), Response::HTTP_NOT_FOUND);
+            return $this->error('Record not found or could not be deleted', Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -70,7 +70,7 @@ class RecycleBinController extends Controller
 
             return $this->success(RecycleBinResource::collection($restored), 'Records restored successfully');
         } catch (\Exception $e) {
-            return $this->error($e->getMessage(), Response::HTTP_BAD_REQUEST);
+            return $this->error('Bulk restore failed', Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -91,7 +91,7 @@ class RecycleBinController extends Controller
 
             return $this->success(RecycleBinResource::collection($deleted), 'Records permanently deleted successfully');
         } catch (\Exception $e) {
-            return $this->error($e->getMessage(), Response::HTTP_BAD_REQUEST);
+            return $this->error('Bulk force delete failed', Response::HTTP_BAD_REQUEST);
         }
     }
 }

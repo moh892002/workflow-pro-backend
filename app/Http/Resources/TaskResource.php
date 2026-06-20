@@ -21,7 +21,7 @@ class TaskResource extends JsonResource
             'description' => $this->description,
             'priority' => $this->priority,
             'status' => $this->status,
-            'deadline_date' => $this->deadline_date,
+            'deadline_date' => $this->deadline_date?->format('Y-m-d'),
             'assigned_to' => $this->assigned_to,
             // 'project_id' => $this->project_id,
             'created_at' => $this->created_at,

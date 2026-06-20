@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Resources\AttendanceResource;
 use App\Models\AttendanceRecord;
 use App\Services\AttendanceService;
@@ -36,7 +37,7 @@ class AttendanceController extends Controller
         $record = $this->attendanceService->today($request->user());
 
         if (! $record) {
-            return response()->json(['success' => true, 'data' => null]);
+            return $this->success(null);
         }
 
         return $this->success(new AttendanceResource($record));

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreRecordRequest;
 use App\Http\Requests\Api\UpdateRecordRequest;
 use App\Http\Resources\SalaryRecordResource;

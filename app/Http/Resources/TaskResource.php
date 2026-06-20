@@ -23,7 +23,7 @@ class TaskResource extends JsonResource
             'status' => $this->status,
             'deadline_date' => $this->deadline_date,
             'assigned_to' => $this->assigned_to,
-            'project_id' => $this->project_id,
+            // 'project_id' => $this->project_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             // Include user data if needed

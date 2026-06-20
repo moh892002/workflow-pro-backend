@@ -1,15 +1,15 @@
 <?php
 
-use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\Api\ActivityLogController;
+use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\PerformanceReviewController;
+use App\Http\Controllers\Api\RecordController;
 use App\Http\Controllers\Api\RecycleBinController;
-use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\RecordController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

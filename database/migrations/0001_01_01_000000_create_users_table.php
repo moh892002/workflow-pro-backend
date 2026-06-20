@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('fullname');
             $table->enum('role', ['ADMIN', 'HR_MANAGER', 'EMPLOYEE']);
             $table->string('image')->nullable();
-            $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('department_id')->nullable();
             $table->string('job_title');
             $table->string('email')->unique();
             $table->string('username')->unique();

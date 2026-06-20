@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreDepartmentRequest;
 use App\Http\Requests\Api\UpdateDepartmentRequest;
+use App\Models\Department;
 use App\Services\DepartmentService;
 use Illuminate\Http\Request;
 
@@ -26,36 +28,25 @@ class DepartmentController extends Controller
         return $this->created($this->departmentService->create($request->validated()));
     }
 
-    public function show($id)
+    public function show(Department $department)
     {
-        $department = $this->departmentService->find($id);
-
-        if (! $department) {
-            return $this->error('Department not found', 404);
-        }
+        $this->authorize('view', $department);
 
         return $this->success($department);
     }
 
-    public function update(UpdateDepartmentRequest $request, $id)
+    public function update(UpdateDepartmentRequest $request, Department $department)
     {
-        $department = $this->departmentService->find($id);
-        if (! $department) {
-            return $this->error('Department not found', 404);
-        }
+        $this->authorize('update', $department);
 
         $this->departmentService->update($department, $request->validated());
 
         return $this->success($department);
     }
 
-    public function destroy($id)
+    public function destroy(Department $department)
     {
-        $department = $this->departmentService->find($id);
-
-        if (! $department) {
-            return $this->error('Department not found', 404);
-        }
+        $this->authorize('delete', $department);
 
         $this->departmentService->delete($department);
 

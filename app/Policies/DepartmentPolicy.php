@@ -19,16 +19,16 @@ class DepartmentPolicy
 
     public function create(User $user): bool
     {
-        return true;
+        return in_array($user->role, ['ADMIN', 'HR_MANAGER']);
     }
 
     public function update(User $user, Department $department): bool
     {
-        return true;
+        return in_array($user->role, ['ADMIN', 'HR_MANAGER']);
     }
 
     public function delete(User $user, Department $department): bool
     {
-        return true;
+        return in_array($user->role, ['ADMIN', 'HR_MANAGER']);
     }
 }

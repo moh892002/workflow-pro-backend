@@ -19,7 +19,7 @@ test('user can login with valid credentials', function () {
     ]);
 
     $response->assertStatus(200)
-        ->assertJsonStructure(['token', 'user']);
+        ->assertJsonStructure(['success', 'data' => ['token', 'user']]);
 });
 
 test('user cannot login with invalid credentials', function () {

@@ -21,11 +21,7 @@ class PerformanceReviewService
 
     public function create(User $user, array $data): PerformanceReview
     {
-        if (isset($data['reviewer_id'])) {
-            $data['reviewer_id'] = $data['reviewer_id'];
-        } else {
-            $data['reviewer_id'] = $user->id;
-        }
+        $data['reviewer_id'] ??= $user->id;
 
         return PerformanceReview::create($data);
     }

@@ -82,6 +82,65 @@ test('employee can view salary records', function () {
     $response->assertStatus(200);
 });
 
+test('admin can update a salary record', function () {
+    $employee = makeUser();
+    $record = SalaryRecord::create([
+        'user_id' => $employee->id,
+        'amount' => 5000,
+        'transaction_type' => 'salary',
+        'transaction_date' => now(),
+    ]);
+
+    $response = $this->actingAs($this->admin)
+        ->putJson("/api/records/{$record->id}", [
+            'user_id' => $employee->id,
+            'amount' => 6000,
+            'transaction_type' => 'bonus',
+            'transaction_date' => now()->toDateString(),
+            'notes' => 'Updated bonus',
+        ]);
+
+    $response->assertStatus(200);
+    expect((float) $record->fresh()->amount)->toEqual(6000.0);
+    expect($record->fresh()->transaction_type)->toBe('bonus');
+});
+
+test('employee cannot update a salary record', function () {
+    $employee = makeUser(['role' => 'EMPLOYEE']);
+    $record = SalaryRecord::create([
+        'user_id' => $employee->id,
+        'amount' => 5000,
+        'transaction_type' => 'salary',
+        'transaction_date' => now(),
+    ]);
+
+    $response = $this->actingAs($employee)
+        ->putJson("/api/records/{$record->id}", [
+            'user_id' => $employee->id,
+            'amount' => 6000,
+            'transaction_type' => 'bonus',
+            'transaction_date' => now()->toDateString(),
+        ]);
+
+    $response->assertStatus(403);
+    expect((float) $record->fresh()->amount)->toEqual(5000.0);
+});
+
+test('update salary record requires validation', function () {
+    $employee = makeUser();
+    $record = SalaryRecord::create([
+        'user_id' => $employee->id,
+        'amount' => 5000,
+        'transaction_type' => 'salary',
+        'transaction_date' => now(),
+    ]);
+
+    $response = $this->actingAs($this->admin)
+        ->putJson("/api/records/{$record->id}", []);
+
+    $response->assertStatus(422);
+});
+
 test('create salary record requires validation', function () {
     $response = $this->actingAs($this->admin)
         ->postJson('/api/records', []);

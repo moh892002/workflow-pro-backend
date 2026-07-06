@@ -1,8 +1,9 @@
 <?php
 
 use App\Models\ActivityLog;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->employee = makeUser(['role' => 'EMPLOYEE']);

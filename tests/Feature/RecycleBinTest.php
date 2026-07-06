@@ -2,8 +2,9 @@
 
 use App\Models\RecycleBin;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->admin = makeUser(['role' => 'ADMIN']);

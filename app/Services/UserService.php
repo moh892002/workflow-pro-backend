@@ -12,6 +12,7 @@ class UserService
     {
         return DB::transaction(function () use ($data) {
             $data['password'] = Hash::make($data['password']);
+
             return User::create($data);
         });
     }
@@ -26,6 +27,7 @@ class UserService
             }
 
             $user->update($data);
+
             return $user;
         });
     }
@@ -33,8 +35,8 @@ class UserService
     public function delete(User $user): void
     {
         DB::transaction(function () use ($user) {
-            if ($user->image && file_exists(public_path('images/' . $user->image))) {
-                unlink(public_path('images/' . $user->image));
+            if ($user->image && file_exists(public_path('images/users/'.$user->image))) {
+                unlink(public_path('images/users/'.$user->image));
             }
 
             $user->delete();

@@ -2,16 +2,17 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Contracts\Support\Arrayable;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin User */
 class UserResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @return array|Arrayable|\JsonSerializable
+     * @return array<string, mixed>
      */
     public function toArray(Request $request): array
     {
@@ -27,8 +28,9 @@ class UserResource extends JsonResource
             'salary' => $this->salary,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'deleted_at' => $this->deleted_at,
             // Include department data if needed
-            'department' => $this->whenLoaded('department'),
+            'department' => $this->whenLoaded('department', fn () => $this->department?->only('id', 'name')),
         ];
     }
 }

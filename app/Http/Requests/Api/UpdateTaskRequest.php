@@ -14,12 +14,12 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'priority' => 'required|in:LOW,MEDIUM,HIGH,URGENT',
-            'status' => 'required|in:completed,pending,in_progress',
-            'deadline_date' => 'required|date_format:Y-m-d',
-            'assigned_to' => 'nullable|exists:users,id',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
+            'priority' => 'sometimes|required|in:LOW,MEDIUM,HIGH,URGENT',
+            'status' => 'sometimes|required|in:completed,pending,in_progress',
+            'deadline_date' => 'sometimes|required|date_format:Y-m-d',
+            'assigned_to' => 'sometimes|nullable|exists:users,id',
         ];
     }
 }

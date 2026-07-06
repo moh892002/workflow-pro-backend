@@ -20,10 +20,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        $perPage = $request->input('per_page', 15);
-        $page = $request->input('page', 1);
-
-        $users = User::with('department')->paginate($perPage, ['*'], 'page', $page);
+        $users = User::with('department')->get();
 
         return $this->success(UserResource::collection($users), null, 200, JSON_UNESCAPED_SLASHES);
     }
@@ -59,6 +56,6 @@ class UserController extends Controller
 
         $this->userService->delete($user);
 
-        return $this->message($user->username . ' deleted successfully');
+        return $this->message($user->username.' deleted successfully');
     }
 }

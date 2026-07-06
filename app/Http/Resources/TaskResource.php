@@ -2,16 +2,17 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Contracts\Support\Arrayable;
+use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Task */
 class TaskResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @return array|Arrayable|\JsonSerializable
+     * @return array<string, mixed>
      */
     public function toArray(Request $request): array
     {
@@ -21,7 +22,7 @@ class TaskResource extends JsonResource
             'description' => $this->description,
             'priority' => $this->priority,
             'status' => $this->status,
-            'deadline_date' => $this->deadline_date?->format('Y-m-d'),
+            'deadline_date' => $this->deadline_date->format('Y-m-d'),
             'assigned_to' => $this->assigned_to,
             // 'project_id' => $this->project_id,
             'created_at' => $this->created_at,

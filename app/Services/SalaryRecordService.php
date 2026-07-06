@@ -33,6 +33,7 @@ class SalaryRecordService
     public function update(SalaryRecord $record, array $data): SalaryRecord
     {
         $record->update($data);
+
         return $record;
     }
 

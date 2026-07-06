@@ -1,0 +1,17 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+
+    paths:
+        - app
+
+    # Level 10 is the highest
+    level: 5
+
+    tmpDir: storage/framework/cache/phpstan
+
+    excludePaths:
+        - ./*/*/FileToBeExcluded.php
+
+

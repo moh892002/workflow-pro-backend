@@ -9,7 +9,7 @@ class AttendanceRecordPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return in_array($user->role, ['ADMIN', 'HR_MANAGER']);
     }
 
     public function view(User $user, AttendanceRecord $attendanceRecord): bool

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Department;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 
 class DepartmentService
@@ -30,6 +29,7 @@ class DepartmentService
     public function update(Department $department, array $data): Department
     {
         $department->update($data);
+
         return $department;
     }
 

@@ -52,14 +52,14 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        $required = ['APP_KEY'];
+        $required = ['app.key'];
         foreach ($required as $key) {
-            if (empty(env($key))) {
-                throw new \RuntimeException("Environment variable {$key} is not set.");
+            if (empty(config($key))) {
+                throw new \RuntimeException('Environment variable APP_KEY is not set.');
             }
         }
 
-        if (env('APP_DEBUG') === true) {
+        if (config('app.debug')) {
             throw new \RuntimeException('APP_DEBUG must be false in production.');
         }
     }

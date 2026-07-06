@@ -8,6 +8,7 @@ use App\Http\Requests\Api\UpdateDepartmentRequest;
 use App\Models\Department;
 use App\Services\DepartmentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class DepartmentController extends Controller
 {
@@ -17,15 +18,29 @@ class DepartmentController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 15);
-        $page = $request->input('page', 1);
+        $departments = Cache::remember('departments:all', 3600, function () {
+            return Department::all(['id', 'name', 'created_at', 'updated_at']);
+        });
 
-        return $this->success($this->departmentService->list($perPage, $page));
+        return $this->success($departments);
     }
 
     public function store(StoreDepartmentRequest $request)
     {
+        Cache::forget('departments:all');
+
         return $this->created($this->departmentService->create($request->validated()));
+    }
+
+    public function update(UpdateDepartmentRequest $request, Department $department)
+    {
+        Cache::forget('departments:all');
+
+        $this->authorize('update', $department);
+
+        $this->departmentService->update($department, $request->validated());
+
+        return $this->success($department);
     }
 
     public function show(Department $department)
@@ -35,17 +50,10 @@ class DepartmentController extends Controller
         return $this->success($department);
     }
 
-    public function update(UpdateDepartmentRequest $request, Department $department)
-    {
-        $this->authorize('update', $department);
-
-        $this->departmentService->update($department, $request->validated());
-
-        return $this->success($department);
-    }
-
     public function destroy(Department $department)
     {
+        Cache::forget('departments:all');
+
         $this->authorize('delete', $department);
 
         $this->departmentService->delete($department);

@@ -4,7 +4,21 @@ namespace App\Models;
 
 use App\Traits\RecycleBinTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property Carbon $date
+ * @property Carbon|null $check_in
+ * @property Carbon|null $check_out
+ * @property string $status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read User $user
+ */
 class AttendanceRecord extends Model
 {
     use RecycleBinTrait;
@@ -26,7 +40,7 @@ class AttendanceRecord extends Model
         ];
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

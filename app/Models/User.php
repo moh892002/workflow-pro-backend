@@ -4,11 +4,36 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Traits\RecycleBinTrait;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property int $id
+ * @property string $fullname
+ * @property string $email
+ * @property string $password
+ * @property string $role
+ * @property int|null $department_id
+ * @property string $job_title
+ * @property string|null $image
+ * @property string $username
+ * @property int $salary
+ * @property string|null $email_verified_at
+ * @property string|null $remember_token
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read string|null $image_url
+ * @property-read Department|null $department
+ * @property-read Collection<int, Task> $tasks
+ * @property-read Collection<int, SalaryRecord> $salaryRecords
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, RecycleBinTrait;
@@ -17,14 +42,9 @@ class User extends Authenticatable
 
     protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image ? asset('images/'.$this->image) : null;
+        return $this->image ? asset('images/users/'.$this->image) : null;
     }
 
     protected $fillable = [
@@ -47,17 +67,17 @@ class User extends Authenticatable
         ];
     }
 
-    public function tasks()
+    public function tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'assigned_to');
     }
 
-    public function salaryRecords()
+    public function salaryRecords(): HasMany
     {
         return $this->hasMany(SalaryRecord::class);
     }
 
-    public function department()
+    public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
     }

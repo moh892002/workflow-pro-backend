@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\RecycleBin;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RecycleBinService
@@ -161,6 +160,6 @@ class RecycleBinService
             return $model;
         }
 
-        return 'App\\Models\\' . $model;
+        return 'App\\Models\\'.$model;
     }
 }

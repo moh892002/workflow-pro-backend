@@ -1,8 +1,9 @@
 <?php
 
 use App\Models\SalaryRecord;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->admin = makeUser(['role' => 'ADMIN']);
@@ -136,7 +137,9 @@ test('update salary record requires validation', function () {
     ]);
 
     $response = $this->actingAs($this->admin)
-        ->putJson("/api/records/{$record->id}", []);
+        ->putJson("/api/records/{$record->id}", [
+            'amount' => 'not-a-number',
+        ]);
 
     $response->assertStatus(422);
 });

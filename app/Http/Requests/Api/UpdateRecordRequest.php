@@ -14,11 +14,11 @@ class UpdateRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
-            'transaction_type' => 'required|in:salary,bonus,deduction,advance,overtime',
-            'amount' => 'required|numeric',
-            'transaction_date' => 'required|date',
-            'notes' => 'nullable|string',
+            'user_id' => 'sometimes|required|exists:users,id',
+            'transaction_type' => 'sometimes|required|in:salary,bonus,deduction,advance,overtime',
+            'amount' => 'sometimes|required|numeric',
+            'transaction_date' => 'sometimes|required|date',
+            'notes' => 'sometimes|nullable|string',
         ];
     }
 }

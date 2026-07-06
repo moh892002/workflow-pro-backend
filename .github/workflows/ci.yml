@@ -38,7 +38,7 @@ jobs:
       - name: Setup environment
         run: |
           cp .env.example .env
-          php artisan key:generate
+          php -r "file_put_contents('.env', preg_replace('/^APP_KEY=.*/m', 'APP_KEY=' . base64_encode(random_bytes(32)), file_get_contents('.env')));"
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
@@ -73,7 +73,7 @@ jobs:
       - name: Setup environment
         run: |
           cp .env.example .env
-          php artisan key:generate
+          php -r "file_put_contents('.env', preg_replace('/^APP_KEY=.*/m', 'APP_KEY=' . base64_encode(random_bytes(32)), file_get_contents('.env')));"
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
@@ -108,7 +108,7 @@ jobs:
       - name: Setup environment
         run: |
           cp .env.example .env
-          php artisan key:generate
+          php -r "file_put_contents('.env', preg_replace('/^APP_KEY=.*/m', 'APP_KEY=' . base64_encode(random_bytes(32)), file_get_contents('.env')));"
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress

@@ -35,6 +35,11 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
+      - name: Setup environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
@@ -64,6 +69,11 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+
+      - name: Setup environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
@@ -95,13 +105,13 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
-
       - name: Setup environment
         run: |
           cp .env.example .env
           php artisan key:generate
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Run tests
         run: php artisan test

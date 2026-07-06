@@ -21,7 +21,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: pdo, pdo_sqlite, mbstring, xml, curl, gd, fileinfo, bcmath, intl, dom, simplexml, tokenizer
           tools: composer:v2
           coverage: none
 
@@ -52,7 +51,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: pdo, pdo_sqlite, mbstring, xml, curl, gd, fileinfo, bcmath, intl, dom, simplexml, tokenizer
           tools: composer:v2
           coverage: none
 
@@ -83,7 +81,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: pdo, pdo_sqlite, mbstring, xml, curl, gd, fileinfo, bcmath, intl, dom, simplexml, tokenizer
           tools: composer:v2
           coverage: none
 
